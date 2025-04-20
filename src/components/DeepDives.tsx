@@ -30,7 +30,7 @@ const DeepDives = ({ articles }: DeepDivesProps) => {
                   alt={article.title}
                   className="object-cover w-full h-40"
                 />
-                <span className="absolute top-2 right-2 bg-white text-xs px-2 py-1 rounded">
+                <span className="absolute top-2 right-2 bg-background dark:bg-slate-800 text-foreground dark:text-white text-xs px-2 py-1 rounded border border-border dark:border-slate-700">
                   {article.category}
                 </span>
               </div>
