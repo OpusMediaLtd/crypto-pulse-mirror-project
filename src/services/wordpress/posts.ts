@@ -1,4 +1,3 @@
-
 import { WORDPRESS_API_URL } from './config';
 import { WordPressPost, NewsItem } from './types';
 import { getMockPosts } from './mocks';
@@ -15,15 +14,27 @@ const fetchWithCache = async (url: string, cacheDuration: number) => {
   
   // Check cache
   if (cache[cacheKey] && (now - cache[cacheKey].timestamp) < cacheDuration) {
+    console.log('Using cached data for:', url);
     return cache[cacheKey].data;
   }
   
   console.log('Fetching WordPress data from:', url);
   try {
-    const response = await fetch(url);
+    // Add a timeout to the fetch request
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
+    const response = await fetch(url, { 
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+      }
+    });
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
-      console.error(`Failed to fetch from ${url}: Status ${response.status}`);
+      console.error(`Failed to fetch from ${url}: Status ${response.status} ${response.statusText}`);
       throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
     }
     
@@ -39,6 +50,19 @@ const fetchWithCache = async (url: string, cacheDuration: number) => {
     return data;
   } catch (error) {
     console.error(`Error fetching from ${url}:`, error);
+    
+    // If this is a timeout or network error, check if we have stale cache
+    if (cache[cacheKey]) {
+      console.warn('Using stale cache due to fetch error');
+      return cache[cacheKey].data;
+    }
+    
+    // If it's a CORS error, suggest solutions in the console
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error('This may be a CORS issue. Ensure your WordPress site has CORS headers configured properly.');
+      console.error('For WordPress, you can use a plugin like "WP CORS" or add headers in your .htaccess file.');
+    }
+    
     throw error; // Re-throw to handle it in the calling function
   }
 };
@@ -63,10 +87,24 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
       return posts;
     } else {
       console.warn('API returned empty or invalid posts array');
+      
+      // In production, if no real posts are available, use mock data as fallback
+      if (import.meta.env.MODE === 'production') {
+        console.log('Using mock posts as fallback in production');
+        return getMockPosts();
+      }
+      
       return [];
     }
   } catch (error) {
     console.error('Error fetching posts:', error);
+    
+    // Use mock data as fallback in case of error
+    if (import.meta.env.MODE === 'production') {
+      console.log('Using mock posts as fallback due to fetch error');
+      return getMockPosts();
+    }
+    
     // Return an empty array on error
     return [];
   }
@@ -107,6 +145,12 @@ export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
   console.log("Post title rendered:", post.title?.rendered);
   console.log("Post excerpt rendered:", post.excerpt?.rendered);
 
+  // Use null checks and fallbacks for all post properties
+  const title = post.title?.rendered || "Untitled Post";
+  const description = post.excerpt?.rendered || "";
+  const slug = post.slug || `post-${post.id || Date.now()}`;
+  const date = post.date || new Date().toISOString();
+
   // Get featured image URL if available
   let imageUrl = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
   try {
@@ -115,6 +159,7 @@ export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
         post._embedded['wp:featuredmedia'][0] && 
         post._embedded['wp:featuredmedia'][0].source_url) {
       imageUrl = post._embedded['wp:featuredmedia'][0].source_url;
+      console.log('Found featured image:', imageUrl);
     }
   } catch (error) {
     console.warn('Error extracting featured image:', error);
@@ -129,21 +174,25 @@ export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
         post._embedded['wp:term'][0][0] && 
         post._embedded['wp:term'][0][0].name) {
       categoryName = post._embedded['wp:term'][0][0].name;
+      console.log('Found category:', categoryName);
     }
   } catch (error) {
     console.warn('Error extracting category:', error);
   }
 
-  return {
+  const newsItem = {
     id: post.id || 0,
-    title: post.title?.rendered || "Untitled Post",
-    description: post.excerpt?.rendered || "",
+    title: title,
+    description: description,
     image: imageUrl,
     category: categoryName,
-    time: formatPostDate(post.date || new Date().toISOString()),
-    slug: post.slug || 'post',
+    time: formatPostDate(date),
+    slug: slug,
     author: extractAuthor(post)
   };
+  
+  console.log('Created news item:', newsItem);
+  return newsItem;
 };
 
 // Helper function to strip HTML tags
