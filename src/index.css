@@ -1,116 +1,44 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 4.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 4.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
+    --background: 240 10% 2.5%; // Darker background
+    --foreground: 0 0% 95%; // Slightly softer white for text
+    --card: 240 10% 3.5%; // Slightly lighter than background for depth
+    --card-foreground: 0 0% 95%;
+    --popover: 240 10% 3.5%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 220 50% 80%; // Softer, less harsh primary color
     --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --sidebar-background: 240 10% 3.9%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 240 5.9% 10%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 240 4.9% 83.9%;
+    --secondary: 240 3.7% 10%; // Darker secondary
+    --secondary-foreground: 0 0% 95%;
+    --muted: 240 3.7% 8%; // Very dark muted color
+    --muted-foreground: 240 5% 55%;
+    --accent: 240 3.7% 10%; // Dark accent
+    --accent-foreground: 0 0% 95%;
+    --destructive: 0 62.8% 25%; // Darker destructive color
+    --destructive-foreground: 0 0% 95%;
+    --border: 240 3.7% 8%; // Very dark border
+    --input: 240 3.7% 12%; // Slightly lighter input
+    --ring: 240 4.9% 70%; // Softer ring color
   }
 }
 
 @layer base {
   * {
-    @apply border-border selection:bg-white/10 selection:text-white;
+    @apply border-border selection:bg-white/20 selection:text-white transition-colors duration-300;
   }
 
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    @apply bg-background text-foreground antialiased;
   }
 }
 
 @layer utilities {
-  .story-link {
-    @apply relative inline-block;
-  }
-  
-  .story-link::after {
-    content: '';
-    @apply absolute w-full scale-x-0 h-0.5 bottom-0 left-0 bg-primary origin-bottom-right transition-transform duration-300;
-  }
-  
-  .story-link:hover::after {
-    @apply scale-x-100 origin-bottom-left;
+  .dark-glass {
+    @apply backdrop-blur-xl bg-black/40 border border-white/10 shadow-xl;
   }
 
-  .hover-scale {
-    @apply transition-transform duration-200 hover:scale-105;
-  }
-
-  .glass-card {
-    @apply backdrop-blur-sm bg-white/90 shadow-lg border border-gray-200/50;
+  .text-glow {
+    @apply drop-shadow-[0_0_5px_rgba(255,255,255,0.2)];
   }
 }

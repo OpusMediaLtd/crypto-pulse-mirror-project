@@ -22,7 +22,10 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
+        background: {
+          DEFAULT: "hsl(var(--background))",
+          foreground: "hsl(var(--foreground))"
+        },
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
@@ -123,6 +126,10 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         'pulse': 'pulse 3s ease-in-out infinite',
         "glow": "glow 3s ease-in-out infinite"
+      },
+      boxShadow: {
+        'dark-glow': '0 0 15px rgba(255,255,255,0.1)',
+        'dark-inner': 'inset 0 2px 4px rgba(0,0,0,0.3)'
       }
     }
   },
