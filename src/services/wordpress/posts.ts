@@ -56,7 +56,7 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
  * Fetch a single post by slug
  */
 export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
-  if (WORDPRESS_API_URL === DEFAULT_WP_API_URL) {
+  if (WORDPRESS_API_URL.includes('yourdomain.com')) {
     const mockPosts = getMockPosts();
     const post = mockPosts.find(p => p.slug === slug);
     if (post) return post;

@@ -11,7 +11,7 @@ import { getMockCategories } from './mocks';
  */
 export const getCategories = async (): Promise<WordPressCategory[]> => {
   // If WORDPRESS_API_URL is not configured, return mock data
-  if (WORDPRESS_API_URL === DEFAULT_WP_API_URL) {
+  if (WORDPRESS_API_URL.includes('yourdomain.com')) {
     return getMockCategories();
   }
   
