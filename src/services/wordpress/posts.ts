@@ -19,22 +19,28 @@ const fetchWithCache = async (url: string, cacheDuration: number) => {
   }
   
   console.log('Fetching WordPress data from:', url);
-  const response = await fetch(url);
+  try {
+    const response = await fetch(url);
     
-  if (!response.ok) {
-    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+    if (!response.ok) {
+      console.error(`Failed to fetch from ${url}: Status ${response.status}`);
+      throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    console.log('WordPress API Response:', data);
+    
+    // Update cache
+    cache[cacheKey] = {
+      data,
+      timestamp: now
+    };
+    
+    return data;
+  } catch (error) {
+    console.error(`Error fetching from ${url}:`, error);
+    throw error; // Re-throw to handle it in the calling function
   }
-    
-  const data = await response.json();
-  console.log('WordPress API Response:', data);
-    
-  // Update cache
-  cache[cacheKey] = {
-    data,
-    timestamp: now
-  };
-    
-  return data;
 };
 
 /**
@@ -51,7 +57,7 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
   try {
     console.log('Attempting to fetch posts from:', url);
     const posts = await fetchWithCache(url, POSTS_CACHE_TIME);
-    console.log('Fetched posts successfully:', posts);
+    console.log('WordPress posts retrieved:', posts);
     
     if (Array.isArray(posts) && posts.length > 0) {
       return posts;
@@ -61,7 +67,7 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
     }
   } catch (error) {
     console.error('Error fetching posts:', error);
-    // Return an empty array instead of mock posts
+    // Return an empty array on error
     return [];
   }
 };
@@ -101,16 +107,42 @@ export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
   console.log("Post title rendered:", post.title?.rendered);
   console.log("Post excerpt rendered:", post.excerpt?.rendered);
 
-  // Return a hardcoded object to confirm rendering works
+  // Get featured image URL if available
+  let imageUrl = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
+  try {
+    if (post._embedded && 
+        post._embedded['wp:featuredmedia'] && 
+        post._embedded['wp:featuredmedia'][0] && 
+        post._embedded['wp:featuredmedia'][0].source_url) {
+      imageUrl = post._embedded['wp:featuredmedia'][0].source_url;
+    }
+  } catch (error) {
+    console.warn('Error extracting featured image:', error);
+  }
+
+  // Get category name if available
+  let categoryName = 'News';
+  try {
+    if (post._embedded && 
+        post._embedded['wp:term'] && 
+        post._embedded['wp:term'][0] && 
+        post._embedded['wp:term'][0][0] && 
+        post._embedded['wp:term'][0][0].name) {
+      categoryName = post._embedded['wp:term'][0][0].name;
+    }
+  } catch (error) {
+    console.warn('Error extracting category:', error);
+  }
+
   return {
-    id: post.id || 123,
-    title: post.title?.rendered || "Test Title",
-    description: post.excerpt?.rendered || "Test Description",
-    image: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format',
-    category: 'News',
-    time: post.date || new Date().toISOString(),
-    slug: post.slug || 'test-slug',
-    author: 'Author'
+    id: post.id || 0,
+    title: post.title?.rendered || "Untitled Post",
+    description: post.excerpt?.rendered || "",
+    image: imageUrl,
+    category: categoryName,
+    time: formatPostDate(post.date || new Date().toISOString()),
+    slug: post.slug || 'post',
+    author: extractAuthor(post)
   };
 };
 
