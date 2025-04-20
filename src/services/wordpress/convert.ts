@@ -1,6 +1,6 @@
 
 import { WordPressPost, NewsItem } from './types';
-import { formatPostDate } from './utils';
+import { formatPostDate, stripHtmlTags } from './utils';
 
 /**
  * Convert WordPress post to NewsCard/NewsItem format
@@ -46,15 +46,40 @@ export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
     console.warn('Error extracting category:', error);
   }
 
+  // Extract tags
+  const tags: string[] = [];
+  try {
+    if (
+      post._embedded &&
+      post._embedded['wp:term'] &&
+      post._embedded['wp:term'][1]
+    ) {
+      const tagTerms = post._embedded['wp:term'][1];
+      tagTerms.forEach(tag => {
+        if (tag && tag.name) {
+          tags.push(tag.name);
+        }
+      });
+      console.log('Found tags:', tags);
+    }
+  } catch (error) {
+    console.warn('Error extracting tags:', error);
+  }
+
+  // Check if post is sponsored
+  const isSponsored = post.acf?.is_sponsored === true;
+
   const newsItem: NewsItem = {
     id: post.id || 0,
-    title: title,
-    description: description,
+    title: stripHtmlTags(title),
+    description: stripHtmlTags(description),
     image: imageUrl,
     category: categoryName,
     time: formatPostDate(date),
     slug: slug,
-    author: extractAuthor(post)
+    author: extractAuthor(post),
+    tags: tags.length > 0 ? tags : undefined,
+    isSponsored: isSponsored
   };
 
   console.log('Created news item:', newsItem);

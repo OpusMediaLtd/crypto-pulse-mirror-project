@@ -4,16 +4,36 @@
  * This service handles fetching data from a WordPress backend via the REST API
  */
 
-import { WORDPRESS_API_URL } from './config';
+import { WORDPRESS_API_URL, getDirectApiUrl, WORDPRESS_CASINO_ENDPOINT, WORDPRESS_BANNER_ADS_ENDPOINT } from './config';
 import { getPosts, getPostBySlug, convertPostToNewsItem } from './posts';
 import { getCategories } from './categories';
+import { fetchWithCache } from './utils';
 
-export { getPosts, getPostBySlug, getCategories, convertPostToNewsItem };
+// Export helpers for working with WordPress API
+export { 
+  getPosts, 
+  getPostBySlug, 
+  getCategories, 
+  convertPostToNewsItem,
+  fetchWithCache
+};
+
+// Export configuration for direct use
+export {
+  WORDPRESS_API_URL,
+  getDirectApiUrl,
+  WORDPRESS_CASINO_ENDPOINT,
+  WORDPRESS_BANNER_ADS_ENDPOINT
+};
 
 export default {
   getPosts,
   getPostBySlug,
   getCategories,
   convertPostToNewsItem,
-  WORDPRESS_API_URL
+  fetchWithCache,
+  WORDPRESS_API_URL,
+  getDirectApiUrl,
+  WORDPRESS_CASINO_ENDPOINT,
+  WORDPRESS_BANNER_ADS_ENDPOINT
 };

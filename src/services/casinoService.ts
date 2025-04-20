@@ -1,42 +1,21 @@
 
 import { CryptoCasino, CasinoListFilters } from '@/types/CryptoCasino';
-import wordpress from './wordpress';
-import { WORDPRESS_API_URL, DEFAULT_WP_API_URL } from './wordpress/config';
+import { WORDPRESS_CASINO_ENDPOINT } from './wordpress/config';
+import { fetchWithCache } from './wordpress/utils';
 
-// Use WORDPRESS_API_URL from the config
-const WORDPRESS_CASINO_ENDPOINT = `${WORDPRESS_API_URL || DEFAULT_WP_API_URL}/crypto-casinos`;
+// Cache duration for casino data
+const CASINO_CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 
 /**
  * Fetch crypto casino listings from WordPress
  */
 export const getCryptoCasinos = async (filters?: CasinoListFilters): Promise<CryptoCasino[]> => {
-  // If WordPress API is not configured, return mock data
-  if (!WORDPRESS_API_URL || WORDPRESS_API_URL.includes('yourdomain.com')) {
-    let casinos = getMockCasinoListings();
-    
-    // Apply filters
-    if (filters) {
-      if (filters.currency) {
-        casinos = casinos.filter(casino => 
-          casino.acceptedCurrencies.some(curr => curr.code.toLowerCase() === filters.currency?.toLowerCase())
-        );
-      }
-      
-      if (filters.minRating) {
-        casinos = casinos.filter(casino => casino.rating >= (filters.minRating || 0));
-      }
-    }
-    
-    // Sort by rank if available
-    return casinos.sort((a, b) => (a.rank || 999) - (b.rank || 999));
-  }
-  
   // Build query parameters
-  let url = `${WORDPRESS_CASINO_ENDPOINT}?per_page=50`;
+  let url = `${WORDPRESS_CASINO_ENDPOINT}?_embed&per_page=50`;
   
   if (filters) {
     if (filters.currency) {
-      url += `&crypto=${filters.currency}`;
+      url += `&currency=${filters.currency}`;
     }
     
     if (filters.minRating) {
@@ -45,13 +24,17 @@ export const getCryptoCasinos = async (filters?: CasinoListFilters): Promise<Cry
   }
   
   try {
-    const response = await fetch(url);
+    console.log('Fetching casino listings from WordPress');
+    const response = await fetchWithCache(url, CASINO_CACHE_TIME);
     
-    if (!response.ok) {
-      throw new Error('Failed to fetch casino listings');
+    if (Array.isArray(response) && response.length > 0) {
+      const casinos = response.map(transformCasinoResponse);
+      // Sort by rank if available
+      return casinos.sort((a, b) => (a.rank || 999) - (b.rank || 999));
     }
     
-    return response.json();
+    console.warn('No casino listings found, using mock data');
+    return getMockCasinoListings();
   } catch (error) {
     console.error('Error fetching casino listings:', error);
     return getMockCasinoListings();
@@ -62,15 +45,11 @@ export const getCryptoCasinos = async (filters?: CasinoListFilters): Promise<Cry
  * Record click on casino affiliate link
  */
 export const trackCasinoClick = async (casinoId: number): Promise<void> => {
-  if (!WORDPRESS_API_URL || WORDPRESS_API_URL.includes('yourdomain.com')) {
-    console.log(`Tracking click for casino ID: ${casinoId}`);
-    return;
-  }
-  
   try {
     await fetch(`${WORDPRESS_CASINO_ENDPOINT}/${casinoId}/track-click`, {
       method: 'POST',
     });
+    console.log(`Tracking click for casino ID: ${casinoId}`);
   } catch (error) {
     console.error('Error tracking casino click:', error);
   }
@@ -83,11 +62,6 @@ export const submitCasinoReview = async (
   casinoId: number, 
   isPositive: boolean
 ): Promise<void> => {
-  if (!WORDPRESS_API_URL || WORDPRESS_API_URL.includes('yourdomain.com')) {
-    console.log(`Submitting ${isPositive ? 'positive' : 'negative'} review for casino ID: ${casinoId}`);
-    return;
-  }
-  
   try {
     await fetch(`${WORDPRESS_CASINO_ENDPOINT}/${casinoId}/review`, {
       method: 'POST',
@@ -98,9 +72,71 @@ export const submitCasinoReview = async (
         isPositive,
       }),
     });
+    console.log(`Submitting ${isPositive ? 'positive' : 'negative'} review for casino ID: ${casinoId}`);
   } catch (error) {
     console.error('Error submitting casino review:', error);
   }
+};
+
+/**
+ * Transform WordPress casino post to our interface
+ */
+const transformCasinoResponse = (wpCasino: any): CryptoCasino => {
+  let imageUrl = '';
+  
+  try {
+    if (wpCasino._embedded && 
+        wpCasino._embedded['wp:featuredmedia'] && 
+        wpCasino._embedded['wp:featuredmedia'][0]) {
+      imageUrl = wpCasino._embedded['wp:featuredmedia'][0].source_url;
+    }
+  } catch (error) {
+    console.warn('Error extracting casino logo:', error);
+  }
+
+  const currencyCodes = wpCasino.acf?.accepted_currencies || ['BTC'];
+  
+  // Transform currency codes to full objects
+  const currencies = currencyCodes.map((code: string) => {
+    const currencyInfo = getCryptoCurrencyByCode(code);
+    return currencyInfo || { name: code, code: code, icon: code.charAt(0) };
+  });
+  
+  return {
+    id: wpCasino.id,
+    name: wpCasino.title.rendered,
+    logo: imageUrl || `https://logo.clearbit.com/${wpCasino.slug.replace(/-/g, '')}.com`,
+    rating: wpCasino.acf?.casino_rating || 3,
+    description: wpCasino.excerpt?.rendered || wpCasino.content?.rendered || '',
+    acceptedCurrencies: currencies,
+    welcomeBonus: wpCasino.acf?.welcome_bonus || 'Welcome Bonus',
+    affiliateLink: wpCasino.acf?.affiliate_link || '#',
+    featured: wpCasino.acf?.is_featured || false,
+    review: {
+      thumbsUp: wpCasino.acf?.thumbs_up || 0,
+      thumbsDown: wpCasino.acf?.thumbs_down || 0
+    },
+    rank: wpCasino.acf?.casino_rank
+  };
+};
+
+/**
+ * Helper to get cryptocurrency details by code
+ */
+const getCryptoCurrencyByCode = (code: string) => {
+  const cryptos = [
+    { name: 'Bitcoin', code: 'BTC', icon: '₿' },
+    { name: 'Ethereum', code: 'ETH', icon: 'Ξ' },
+    { name: 'Litecoin', code: 'LTC', icon: 'Ł' },
+    { name: 'Ripple', code: 'XRP', icon: '✕' },
+    { name: 'Dogecoin', code: 'DOGE', icon: 'Ð' },
+    { name: 'Bitcoin Cash', code: 'BCH', icon: '₿' },
+    { name: 'Tether', code: 'USDT', icon: '₮' },
+    { name: 'Cardano', code: 'ADA', icon: 'A' },
+    { name: 'Solana', code: 'SOL', icon: 'S' }
+  ];
+  
+  return cryptos.find(crypto => crypto.code === code);
 };
 
 /**

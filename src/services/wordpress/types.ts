@@ -31,12 +31,26 @@ export interface WordPressPost {
     }[];
   };
   categories: number[];
+  tags?: number[];
+  acf?: Record<string, any>; // For Advanced Custom Fields
 }
 
 export interface WordPressCategory {
   id: number;
   name: string;
   slug: string;
+  description?: string;
+  count?: number;
+  parent?: number;
+  meta?: Record<string, any>;
+}
+
+export interface WordPressTag {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  count?: number;
 }
 
 export interface NewsItem {
@@ -47,5 +61,57 @@ export interface NewsItem {
   time: string;
   slug: string;
   id: number;
-  author: string; // Adding the author property to the interface
+  author: string;
+  tags?: string[];
+  isSponsored?: boolean;
+}
+
+export interface BannerAdResponse {
+  id: number;
+  date: string;
+  slug: string;
+  title: {
+    rendered: string;
+  };
+  content: {
+    rendered: string;
+  };
+  _embedded?: {
+    'wp:featuredmedia'?: {
+      source_url: string;
+    }[];
+  };
+  acf?: {
+    ad_link: string;
+    ad_location: string;
+    is_active: boolean;
+    ad_tracking_id?: string;
+  };
+}
+
+export interface CasinoPostResponse {
+  id: number;
+  date: string;
+  slug: string;
+  title: {
+    rendered: string;
+  };
+  content: {
+    rendered: string;
+  };
+  _embedded?: {
+    'wp:featuredmedia'?: {
+      source_url: string;
+    }[];
+  };
+  acf?: {
+    casino_rating: number;
+    welcome_bonus: string;
+    affiliate_link: string;
+    accepted_currencies: string[];
+    is_featured: boolean;
+    casino_rank: number;
+    thumbs_up: number;
+    thumbs_down: number;
+  };
 }

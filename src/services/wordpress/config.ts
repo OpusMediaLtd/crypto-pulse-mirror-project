@@ -1,6 +1,6 @@
 
 // Check for environment variables, then use the fallback URL if not available
-export const WORDPRESS_API_URL = import.meta.env.VITE_WORDPRESS_API || 'https://cryptopulsegg-10eda24.ingress-bonde.ewp.live/wp-json/wp/v2';
+export const WORDPRESS_API_URL = import.meta.env.VITE_WORDPRESS_API || 'https://your-wordpress-site.com/wp-json/wp/v2';
 
 // Based on the screenshots, our URLs need to use the direct path format
 export const getDirectApiUrl = () => {
@@ -21,11 +21,17 @@ export const getDirectApiUrl = () => {
 // Original fallback URL kept for reference
 export const DEFAULT_WP_API_URL = 'https://demo.wp-api.org/wp-json/wp/v2';
 
+// Custom post types API endpoints
+export const WORDPRESS_CASINO_ENDPOINT = `${getDirectApiUrl()}/crypto-casinos`;
+export const WORDPRESS_BANNER_ADS_ENDPOINT = `${getDirectApiUrl()}/banner-ads`;
+
 // Log the API URL being used
 console.log('WordPress API URL being used:', WORDPRESS_API_URL);
 console.log('Direct API URL format:', getDirectApiUrl());
 
 export default {
   WORDPRESS_API_URL: getDirectApiUrl(),
-  DEFAULT_WP_API_URL
+  DEFAULT_WP_API_URL,
+  WORDPRESS_CASINO_ENDPOINT,
+  WORDPRESS_BANNER_ADS_ENDPOINT
 };
