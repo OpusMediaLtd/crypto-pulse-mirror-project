@@ -101,7 +101,11 @@ export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
  * Convert WordPress post to NewsCard format
  */
 export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
-  const featuredMediaUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || 'https://images.unsplash.com/photo-1518770660439-4636190af475';
+  // Default fallback image if nothing is available
+  const fallbackImage = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
+  
+  // Try to get the featured media URL, with better fallback handling
+  const featuredMediaUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || fallbackImage;
   
   return {
     title: post.title.rendered,
