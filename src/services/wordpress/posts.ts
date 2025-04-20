@@ -1,5 +1,5 @@
 import { WORDPRESS_API_URL } from './config';
-import { WordPressPost } from './types';
+import { WordPressPost, NewsItem } from './types';
 import { getMockPosts } from './mocks';
 
 // Cache durations
