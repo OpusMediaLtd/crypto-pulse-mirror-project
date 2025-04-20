@@ -1,4 +1,3 @@
-
 import { WORDPRESS_API_URL, getDirectApiUrl } from './config';
 import { WordPressPost, NewsItem } from './types';
 import { getMockPosts } from './mocks';
@@ -91,17 +90,11 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
       return posts;
     } else {
       console.warn('API returned empty or invalid posts array');
-      
-      // Always use mock data as fallback since we're having API issues
-      console.log('Using mock posts as fallback');
-      return getMockPosts();
+      throw new Error('No posts returned from the WordPress API');
     }
   } catch (error) {
     console.error('Error fetching posts:', error);
-    
-    // Always use mock data as fallback for errors
-    console.log('Using mock posts as fallback due to fetch error');
-    return getMockPosts();
+    throw error;
   }
 };
 
@@ -109,18 +102,12 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
  * Fetch a single post by slug
  */
 export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
-  if (WORDPRESS_API_URL.includes('yourdomain.com')) {
-    const mockPosts = getMockPosts();
-    const post = mockPosts.find(p => p.slug === slug);
-    if (post) return post;
-    throw new Error('Post not found');
-  }
-  
-  const url = `${WORDPRESS_API_URL}/posts?slug=${slug}&_embed`;
-  
+  const baseUrl = getDirectApiUrl();
+  const url = `${baseUrl}/posts?slug=${slug}&_embed`;
+
   try {
     const posts = await fetchWithCache(url, POSTS_CACHE_TIME);
-    if (!posts.length) {
+    if (!Array.isArray(posts) || posts.length === 0) {
       throw new Error('Post not found');
     }
     return posts[0];
