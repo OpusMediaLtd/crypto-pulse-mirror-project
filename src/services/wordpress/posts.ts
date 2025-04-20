@@ -1,9 +1,6 @@
 
-/**
- * WordPress API services for posts
- */
 import { WORDPRESS_API_URL } from './config';
-import { WordPressPost, NewsItem } from './types';
+import { WordPressPost, NewsItem, WordPressCategory } from './types';
 import { getMockPosts } from './mocks';
 
 // Cache durations
@@ -22,29 +19,34 @@ const fetchWithCache = async (url: string, cacheDuration: number) => {
     return cache[cacheKey].data;
   }
   
-  const response = await fetch(url);
-  
-  if (!response.ok) {
-    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    // Update cache
+    cache[cacheKey] = {
+      data,
+      timestamp: now
+    };
+    
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return getMockPosts();
   }
-  
-  const data = await response.json();
-  
-  // Update cache
-  cache[cacheKey] = {
-    data,
-    timestamp: now
-  };
-  
-  return data;
 };
 
 /**
  * Fetch posts from WordPress
  */
 export const getPosts = async (page = 1, perPage = 9, category?: number): Promise<WordPressPost[]> => {
+  // If no real API is configured, use mock data
   if (WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
-    console.log('Using mock data with category:', category);
     const allMockPosts = getMockPosts();
     const startIndex = (page - 1) * perPage;
     const endIndex = startIndex + perPage;
@@ -101,68 +103,69 @@ export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
  * Convert WordPress post to NewsCard format
  */
 export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
+  // Comprehensive validation and fallback mechanism
   if (!post || !post.title || !post.excerpt) {
     console.warn('Invalid post object:', post);
-    return {
-      id: 0,
-      title: 'Unavailable',
-      description: 'Content unavailable',
-      image: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format',
-      category: 'News',
-      time: new Date().toLocaleString(),
-      slug: 'unavailable',
-      author: 'Unknown'
-    };
+    return createFallbackNewsItem();
   }
 
-  // Default fallback image if nothing is available
+  // Default fallback image
   const fallbackImage = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
   
-  // Get the featured media URL with proper fallback handling
-  let featuredMediaUrl;
-  
+  // Safely extract featured media URL
+  let featuredMediaUrl = fallbackImage;
   try {
-    // Try to safely access the featured media URL
-    featuredMediaUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+    const mediaUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url;
     
-    // Validate the URL - check if it's a string and not empty
-    if (!featuredMediaUrl || typeof featuredMediaUrl !== 'string' || featuredMediaUrl.trim() === '') {
-      console.warn('Empty or invalid featured media URL for post:', post.id);
-      featuredMediaUrl = fallbackImage;
-    } else {
-      // Try to construct a URL object to validate it further
-      try {
-        new URL(featuredMediaUrl);
-      } catch (urlError) {
-        console.warn('Invalid URL format:', featuredMediaUrl);
-        featuredMediaUrl = fallbackImage;
-      }
+    if (mediaUrl && typeof mediaUrl === 'string' && mediaUrl.startsWith('http')) {
+      featuredMediaUrl = mediaUrl;
     }
   } catch (error) {
-    console.warn('Error accessing featured media URL:', error);
-    featuredMediaUrl = fallbackImage;
-  }
-  
-  // Check for common URL patterns that wouldn't be images
-  if (featuredMediaUrl.includes('undefined') || featuredMediaUrl.includes('null')) {
-    console.warn('URL contains invalid substrings:', featuredMediaUrl);
-    featuredMediaUrl = fallbackImage;
-  }
-  
-  // Final check: ensure URL is absolute
-  if (!featuredMediaUrl.startsWith('http')) {
-    console.warn('URL is not absolute:', featuredMediaUrl);
-    featuredMediaUrl = fallbackImage;
+    console.warn('Error extracting featured media:', error);
   }
   
   return {
     id: post.id,
     title: post.title.rendered,
-    description: post.excerpt.rendered.replace(/<\/?[^>]+(>|$)/g, ""), // Strip HTML
+    description: stripHtmlTags(post.excerpt.rendered),
     image: featuredMediaUrl,
-    category: 'News', // You would map this based on actual categories
-    time: new Date(post.date).toLocaleString(),
+    category: 'News', // Default category, can be improved later
+    time: formatPostDate(post.date),
     slug: post.slug,
-    author: 'CryptoPulse Staff' // Default author if not available
+    author: extractAuthor(post)
   };
 };
+
+// Helper function to strip HTML tags
+const stripHtmlTags = (html: string): string => {
+  return html.replace(/<\/?[^>]+(>|$)/g, "");
+};
+
+// Helper function to format post date
+const formatPostDate = (dateString: string): string => {
+  try {
+    return new Date(dateString).toLocaleString();
+  } catch (error) {
+    console.warn('Invalid date:', dateString);
+    return new Date().toLocaleString();
+  }
+};
+
+// Helper function to extract author (placeholder implementation)
+const extractAuthor = (post: WordPressPost): string => {
+  // You might want to implement more sophisticated author extraction
+  return 'CryptoPulse Staff';
+};
+
+// Fallback function for invalid posts
+const createFallbackNewsItem = (): NewsItem => ({
+  id: 0,
+  title: 'Unavailable Content',
+  description: 'Content could not be loaded',
+  image: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format',
+  category: 'News',
+  time: new Date().toLocaleString(),
+  slug: 'unavailable',
+  author: 'Unknown'
+});
+
