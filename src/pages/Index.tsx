@@ -1,17 +1,13 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import NewsCard from '@/components/NewsCard';
-import { Card } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { ChevronRight } from 'lucide-react';
 import wordpress from '@/services/wordpress';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import StatsSection from '@/components/StatsSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
-import ShareButtons from '@/components/ShareButtons';
+import RecentArticles from '@/components/RecentArticles';
+import FeaturedStories from '@/components/FeaturedStories';
+import DeepDives from '@/components/DeepDives';
 
 const Index = () => {
   const { currency } = useCurrency();
@@ -149,108 +145,20 @@ const Index = () => {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Recent Articles (Left Sidebar) */}
         <div className="md:col-span-3">
-          <div className="mb-6">
-            <div className="flex items-center mb-4">
-              <div className="w-2 h-2 rounded-full bg-red-500 mr-2 animate-pulse"></div>
-              <h2 className="text-xl font-bold">Latest Crypto News</h2>
-            </div>
-            <div className="space-y-4">
-              {recentArticles.map((article) => (
-                <div key={article.id} className="border-b pb-4">
-                  <div className="text-xs text-gray-500 mb-1">
-                    <span className="text-blue-500">{article.category}</span> • {article.time}
-                  </div>
-                  <Link to={`/post/${article.slug}`} className="block font-medium hover:text-primary transition-colors">
-                    {article.title}
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
+          <RecentArticles articles={recentArticles} />
         </div>
 
         {/* Featured Stories (Middle) */}
         <div className="md:col-span-6">
-          <h2 className="text-xl font-bold mb-4">Crypto News Spotlight</h2>
-          <div className="space-y-6">
-            {/* Main Featured Story */}
-            <Card className="overflow-hidden">
-              <Link to={`/post/${featuredStories[0].slug}`} className="block">
-                <div className="aspect-video relative">
-                  <img 
-                    src={featuredStories[0].image} 
-                    alt={featuredStories[0].title}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="text-xl font-bold mb-2">{featuredStories[0].title}</h3>
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-500">
-                      {featuredStories[0].time} • by {featuredStories[0].author}
-                    </div>
-                    <ShareButtons title={featuredStories[0].title} url={`${window.location.origin}/post/${featuredStories[0].slug}`} />
-                  </div>
-                </div>
-              </Link>
-            </Card>
-
-            {/* Other Featured Stories */}
-            {featuredStories.slice(1).map((story) => (
-              <div key={story.id} className="flex gap-4 border-t pt-4">
-                <Link to={`/post/${story.slug}`} className="shrink-0">
-                  <div className="w-32 h-24 overflow-hidden">
-                    <img 
-                      src={story.image} 
-                      alt={story.title}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                </Link>
-                <div className="flex-1">
-                  <div className="text-xs text-blue-500 mb-1">{story.category}</div>
-                  <Link to={`/post/${story.slug}`} className="font-medium hover:text-primary transition-colors block mb-1">
-                    {story.title}
-                  </Link>
-                  <div className="flex justify-between items-center">
-                    <div className="text-xs text-gray-500">
-                      {story.time} • by {story.author}
-                    </div>
-                    <ShareButtons title={story.title} url={`${window.location.origin}/post/${story.slug}`} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <FeaturedStories stories={featuredStories} />
         </div>
 
         {/* Deep Dives (Right Sidebar) */}
         <div className="md:col-span-3">
-          <h2 className="text-xl font-bold mb-4">Deep Dives</h2>
-          <div className="space-y-6">
-            {deepDives.map((article) => (
-              <Card key={article.id} className="overflow-hidden">
-                <Link to={`/post/${article.slug}`} className="block">
-                  <div className="relative">
-                    <img 
-                      src={article.image} 
-                      alt={article.title}
-                      className="object-cover w-full h-40"
-                    />
-                    <span className="absolute top-2 right-2 bg-white text-xs px-2 py-1 rounded">
-                      {article.category}
-                    </span>
-                  </div>
-                  <div className="p-3">
-                    <h3 className="font-medium text-sm line-clamp-2 mb-1">{article.title}</h3>
-                    <div className="text-xs text-gray-500">By {article.author}</div>
-                  </div>
-                </Link>
-              </Card>
-            ))}
-          </div>
+          <DeepDives articles={deepDives} />
         </div>
       </div>
+
       <div className="mt-12">
         <StatsSection />
       </div>
