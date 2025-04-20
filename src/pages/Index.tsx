@@ -24,20 +24,21 @@ const Index = () => {
     queryKey: ['posts'],
     queryFn: async () => {
       console.log('Fetching posts from WordPress');
-      // Make sure we're passing numeric values as function arguments
       return await wordpress.getPosts(1, 9);
     },
     staleTime: 1 * 60 * 1000, // Consider posts fresh for 1 minute
-    retry: 1, // Only retry once
+    retry: 2, // Retry twice
     retryDelay: 1000, // 1 second between retries
     meta: {
-      onError: (err: Error) => {
-        toast({
-          title: "Could not load content",
-          description: "We're having trouble connecting to our content server.",
-          variant: "destructive"
-        });
-        console.error('Error fetching posts:', err);
+      onSettled: (data, error) => {
+        if (error) {
+          toast({
+            title: "Could not load content from server",
+            description: "We're having trouble connecting to our content server. Using cached content.",
+            variant: "destructive"
+          });
+          console.error('Error fetching posts:', error);
+        }
       }
     }
   });
@@ -60,31 +61,9 @@ const Index = () => {
     refetch();
   };
 
-  // If there's an error and no posts, show error message
-  if (error && (!posts || posts.length === 0)) {
-    // Return minimal layout with no content
-    return (
-      <Layout>
-        <div className="mt-12 text-center">
-          <Alert variant="destructive" className="max-w-2xl mx-auto mb-8">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Unable to load content</AlertTitle>
-            <AlertDescription>
-              We're having trouble connecting to our content server. Please try again later.
-              <div className="mt-4">
-                <Button onClick={handleRefresh} variant="outline" size="sm">
-                  <RefreshCw className="mr-2 h-4 w-4" /> Try Again
-                </Button>
-              </div>
-            </AlertDescription>
-          </Alert>
-          <StatsSection />
-        </div>
-        <div className="mt-12">
-          <NewsletterSignup />
-        </div>
-      </Layout>
-    );
+  // If there's an error, show the error UI
+  if (error) {
+    console.error('Error in Index component:', error);
   }
 
   const displayedPosts = posts || [];
@@ -99,6 +78,21 @@ const Index = () => {
 
   return (
     <Layout>
+      {error && (
+        <Alert variant="destructive" className="max-w-2xl mx-auto mb-8 mt-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Content Connection Issue</AlertTitle>
+          <AlertDescription>
+            We're having trouble connecting to our content server. 
+            <div className="mt-4">
+              <Button onClick={handleRefresh} variant="outline" size="sm">
+                <RefreshCw className="mr-2 h-4 w-4" /> Try Again
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <MainContentGrid 
         recentArticles={recentArticles}
         featuredStories={featuredStories}

@@ -31,29 +31,43 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
   try {
     // Add a timeout to the fetch request
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-    // Use the CORS proxy for the request
+    // Try direct URL first (no proxy)
+    try {
+      console.log('Attempting direct API request to:', url);
+      const directResponse = await fetch(url, { 
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (directResponse.ok) {
+        clearTimeout(timeoutId);
+        const data = await directResponse.json();
+        console.log('WordPress API direct response received successfully');
+        
+        // Update cache
+        cache[cacheKey] = {
+          data,
+          timestamp: now
+        };
+        
+        return data;
+      }
+      
+      console.log('Direct request failed, trying with CORS proxy...');
+    } catch (directError) {
+      console.log('Direct request failed:', directError);
+      console.log('Falling back to CORS proxy...');
+    }
+
+    // Use the CORS proxy for the request as fallback
     const proxyUrl = getCorsProxyUrl(url);
     console.log('Using CORS proxy URL:', proxyUrl);
-
-    // Log the decoded URL for debugging
-    const decodedUrl = decodeURIComponent(proxyUrl);
-    console.log('Full request URL (decoded):', decodedUrl);
     
-    // Further inspect the URL parameters before fetch
-    try {
-      const urlObj = new URL(decodedUrl.replace('https://corsproxy.io/?', ''));
-      console.log('URL parameters:', {
-        page: urlObj.searchParams.get('page'),
-        per_page: urlObj.searchParams.get('per_page'),
-        categories: urlObj.searchParams.get('categories')
-      });
-    } catch (e) {
-      console.error('Failed to parse URL for inspection:', e);
-    }
-    
-    // Make the fetch request with additional headers
     const response = await fetch(proxyUrl, { 
       signal: controller.signal,
       headers: {
@@ -76,15 +90,6 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
           // Try to parse as JSON if possible
           const errorData = JSON.parse(errorText);
           console.error('API error details:', errorData);
-          
-          if (errorData.data?.params) {
-            console.error('Parameter errors:', errorData.data.params);
-            
-            // Check for specific parameter type issues
-            Object.entries(errorData.data.params).forEach(([param, error]) => {
-              console.error(`Parameter error with ${param}:`, error);
-            });
-          }
           
           if (errorData.message) {
             throw new Error(`API error: ${errorData.message}`);
