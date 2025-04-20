@@ -30,15 +30,16 @@ const Index = () => {
     staleTime: 1 * 60 * 1000, // Consider posts fresh for 1 minute
     retry: 1, // Only retry once
     retryDelay: 1000, // 1 second between retries
-    onError: (err) => {
-      toast({
-        title: "Could not load content",
-        description: "We're having trouble connecting to our content server.",
-        variant: "destructive"
-      });
-      console.error('Error fetching posts:', err);
-    },
-    // Do not use fallback data here
+    meta: {
+      onError: (err: Error) => {
+        toast({
+          title: "Could not load content",
+          description: "We're having trouble connecting to our content server.",
+          variant: "destructive"
+        });
+        console.error('Error fetching posts:', err);
+      }
+    }
   });
 
   // Convert WordPress posts to the format expected by components
@@ -114,4 +115,3 @@ const Index = () => {
 };
 
 export default Index;
-
