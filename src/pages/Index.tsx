@@ -24,7 +24,7 @@ const Index = () => {
     queryKey: ['posts'],
     queryFn: async () => {
       console.log('Fetching posts from WordPress');
-      // Use explicit numeric values to ensure proper parameter type
+      // Make sure we're passing numeric values as function arguments
       return await wordpress.getPosts(1, 9);
     },
     staleTime: 1 * 60 * 1000, // Consider posts fresh for 1 minute

@@ -31,28 +31,34 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
   try {
     // Add a timeout to the fetch request
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
     // Use the CORS proxy for the request
     const proxyUrl = getCorsProxyUrl(url);
     console.log('Using CORS proxy URL:', proxyUrl);
 
-    // Add debugging information to see exact URL being requested
+    // Log the decoded URL for debugging
     const decodedUrl = decodeURIComponent(proxyUrl);
     console.log('Full request URL (decoded):', decodedUrl);
     
-    // Inspect the URL for parameter issues before fetch
-    const urlObj = new URL(decodedUrl.replace('https://corsproxy.io/?', ''));
-    console.log('URL parameters:', {
-      page: urlObj.searchParams.get('page'),
-      per_page: urlObj.searchParams.get('per_page'),
-      categories: urlObj.searchParams.get('categories')
-    });
+    // Further inspect the URL parameters before fetch
+    try {
+      const urlObj = new URL(decodedUrl.replace('https://corsproxy.io/?', ''));
+      console.log('URL parameters:', {
+        page: urlObj.searchParams.get('page'),
+        per_page: urlObj.searchParams.get('per_page'),
+        categories: urlObj.searchParams.get('categories')
+      });
+    } catch (e) {
+      console.error('Failed to parse URL for inspection:', e);
+    }
     
+    // Make the fetch request with additional headers
     const response = await fetch(proxyUrl, { 
       signal: controller.signal,
       headers: {
         'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
     });
 
@@ -61,28 +67,34 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
     if (!response.ok) {
       console.error(`Failed to fetch from ${url}: Status ${response.status} ${response.statusText}`);
       
-      // Special handling for 400 errors with JSON response
-      if (response.status === 400) {
-        const errorData = await response.json();
-        console.error('API error details:', errorData);
+      try {
+        // Try to get error details from the response
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
         
-        // Detailed error handling for parameter issues
-        if (errorData.data?.params) {
-          console.error('Parameter errors:', errorData.data.params);
+        try {
+          // Try to parse as JSON if possible
+          const errorData = JSON.parse(errorText);
+          console.error('API error details:', errorData);
           
-          // Check for specific parameter type issues
-          Object.entries(errorData.data.params).forEach(([param, error]) => {
-            console.error(`Parameter error with ${param}:`, error);
-          });
-          
-          if (errorData.data.params.per_page) {
-            throw new Error(`WordPress API parameter error: ${errorData.data.params.per_page}`);
+          if (errorData.data?.params) {
+            console.error('Parameter errors:', errorData.data.params);
+            
+            // Check for specific parameter type issues
+            Object.entries(errorData.data.params).forEach(([param, error]) => {
+              console.error(`Parameter error with ${param}:`, error);
+            });
           }
+          
+          if (errorData.message) {
+            throw new Error(`API error: ${errorData.message}`);
+          }
+        } catch (jsonError) {
+          // If can't parse as JSON, just log the text
+          console.error('Non-JSON error response');
         }
-        
-        if (errorData.message) {
-          throw new Error(`API error: ${errorData.message}`);
-        }
+      } catch (textError) {
+        console.error('Could not read error response text');
       }
       
       throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
@@ -100,7 +112,7 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
     return data;
   } catch (error) {
     console.error(`Error fetching from ${url}:`, error);
-
+    
     // If this is a timeout or network error, check if we have stale cache
     if (cache[cacheKey]) {
       console.warn('Using stale cache due to fetch error');
