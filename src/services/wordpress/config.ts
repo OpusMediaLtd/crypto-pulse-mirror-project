@@ -1,6 +1,6 @@
 
 // Check for environment variables, then use the fallback URL if not available
-export const WORDPRESS_API_URL = import.meta.env.VITE_WORDPRESS_API || 'https://your-wordpress-site.com/wp-json/wp/v2';
+export const WORDPRESS_API_URL = import.meta.env.VITE_WORDPRESS_API || 'https://demo.wp-api.org/wp-json/wp/v2';
 
 // Based on the screenshots, our URLs need to use the direct path format
 export const getDirectApiUrl = () => {
