@@ -1,3 +1,4 @@
+
 import { WORDPRESS_API_URL, DEFAULT_WP_API_URL } from './config';
 import { WordPressPost, NewsItem } from './types';
 import { getMockPosts } from './mocks';
@@ -17,6 +18,7 @@ const fetchWithCache = async (url: string, cacheDuration: number) => {
     return cache[cacheKey].data;
   }
   
+  console.log('Fetching WordPress data from:', url);
   const response = await fetch(url);
     
   if (!response.ok) {
@@ -24,6 +26,7 @@ const fetchWithCache = async (url: string, cacheDuration: number) => {
   }
     
   const data = await response.json();
+  console.log('WordPress API Response:', data);
     
   // Update cache
   cache[cacheKey] = {
@@ -38,6 +41,7 @@ const fetchWithCache = async (url: string, cacheDuration: number) => {
  * Fetch posts from WordPress
  */
 export const getPosts = async (page = 1, perPage = 9, category?: number): Promise<WordPressPost[]> => {
+  // Construct the URL with the correct query parameter format
   let url = `${WORDPRESS_API_URL}/posts?_embed&page=${page}&per_page=${perPage}`;
 
   if (category) {
@@ -45,9 +49,19 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
   }
 
   try {
-    return await fetchWithCache(url, POSTS_CACHE_TIME);
+    console.log('Attempting to fetch posts from:', url);
+    const posts = await fetchWithCache(url, POSTS_CACHE_TIME);
+    console.log('Fetched posts successfully:', posts);
+    
+    if (Array.isArray(posts) && posts.length > 0) {
+      return posts;
+    } else {
+      console.warn('API returned empty or invalid posts array, using mock data');
+      return getMockPosts().slice(0, perPage);
+    }
   } catch (error) {
     console.error('Error fetching posts:', error);
+    // Only use mock data as a last resort
     return getMockPosts().slice(0, perPage);
   }
 };
@@ -81,6 +95,8 @@ export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
  * Convert WordPress post to NewsCard format
  */
 export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
+  console.log('Converting post to news item:', post);
+
   if (!post || !post.title || !post.excerpt) {
     console.warn('Invalid post object:', post);
     return createFallbackNewsItem();
@@ -92,25 +108,48 @@ export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
   // Safely extract featured media URL
   let featuredMediaUrl = fallbackImage;
   try {
-    const mediaUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url;
-    
-    if (mediaUrl && typeof mediaUrl === 'string' && mediaUrl.startsWith('http')) {
-      featuredMediaUrl = mediaUrl;
+    if (post._embedded && 
+        post._embedded['wp:featuredmedia'] && 
+        post._embedded['wp:featuredmedia'][0] && 
+        post._embedded['wp:featuredmedia'][0].source_url) {
+      const mediaUrl = post._embedded['wp:featuredmedia'][0].source_url;
+      
+      if (mediaUrl && typeof mediaUrl === 'string' && mediaUrl.startsWith('http')) {
+        featuredMediaUrl = mediaUrl;
+      }
+    } else {
+      console.warn('No featured media found for post:', post.id);
     }
   } catch (error) {
     console.warn('Error extracting featured media:', error);
   }
   
-  return {
+  // Extract category name if available
+  let categoryName = 'News';
+  try {
+    if (post._embedded && 
+        post._embedded['wp:term'] && 
+        post._embedded['wp:term'][0] && 
+        post._embedded['wp:term'][0][0]) {
+      categoryName = post._embedded['wp:term'][0][0].name || 'News';
+    }
+  } catch (error) {
+    console.warn('Error extracting category:', error);
+  }
+
+  const newsItem = {
     id: post.id,
     title: post.title.rendered,
     description: stripHtmlTags(post.excerpt.rendered),
     image: featuredMediaUrl,
-    category: 'News',
+    category: categoryName,
     time: formatPostDate(post.date),
     slug: post.slug,
     author: extractAuthor(post)
   };
+
+  console.log('Converted news item:', newsItem);
+  return newsItem;
 };
 
 // Helper function to strip HTML tags
@@ -130,7 +169,12 @@ const formatPostDate = (dateString: string): string => {
 
 // Helper function to extract author (placeholder implementation)
 const extractAuthor = (post: WordPressPost): string => {
-  // You might want to implement more sophisticated author extraction
+  if (post._embedded && 
+      post._embedded.author && 
+      post._embedded.author[0] && 
+      post._embedded.author[0].name) {
+    return post._embedded.author[0].name;
+  }
   return 'CryptoPulse Staff';
 };
 

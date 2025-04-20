@@ -7,19 +7,28 @@ import StatsSection from '@/components/StatsSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import MainContentGrid from '@/components/HomePage/MainContentGrid';
 import wordpress from '@/services/wordpress';
+import { toast } from '@/components/ui/use-toast';
 
 const Index = () => {
   const { currency } = useCurrency();
   
   const { data: posts, isLoading: postsLoading, error } = useQuery({
     queryKey: ['posts'],
-    queryFn: () => wordpress.getPosts(1, 9),
+    queryFn: async () => {
+      console.log('Fetching posts from WordPress');
+      const wpPosts = await wordpress.getPosts(1, 9);
+      console.log('WordPress posts retrieved:', wpPosts);
+      return wpPosts;
+    },
     staleTime: 2 * 60 * 1000, // Consider posts fresh for 2 minutes
   });
 
   // Convert WordPress posts to the format expected by components
   const convertWordPressPosts = (posts = []) => {
-    return posts.map(post => wordpress.convertPostToNewsItem(post)).filter(Boolean);
+    console.log('Converting WordPress posts to news items:', posts);
+    const newsItems = posts.map(post => wordpress.convertPostToNewsItem(post)).filter(Boolean);
+    console.log('Converted news items:', newsItems);
+    return newsItems;
   };
 
   const displayedPosts = posts || [];
@@ -32,9 +41,16 @@ const Index = () => {
     ? convertWordPressPosts(deepDivesPosts) 
     : [];
 
-  if (error) {
-    console.error('Error fetching posts:', error);
-  }
+  React.useEffect(() => {
+    if (error) {
+      console.error('Error fetching posts:', error);
+      toast({
+        title: "Could not load latest posts",
+        description: "Using placeholder content instead",
+        variant: "destructive"
+      });
+    }
+  }, [error]);
 
   return (
     <Layout>
