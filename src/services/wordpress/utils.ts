@@ -31,14 +31,23 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
   try {
     // Add a timeout to the fetch request
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
     // Use the CORS proxy for the request
     const proxyUrl = getCorsProxyUrl(url);
     console.log('Using CORS proxy URL:', proxyUrl);
 
     // Add debugging information to see exact URL being requested
-    console.log('Full request URL (decoded):', decodeURIComponent(proxyUrl));
+    const decodedUrl = decodeURIComponent(proxyUrl);
+    console.log('Full request URL (decoded):', decodedUrl);
+    
+    // Inspect the URL for parameter issues before fetch
+    const urlObj = new URL(decodedUrl.replace('https://corsproxy.io/?', ''));
+    console.log('URL parameters:', {
+      page: urlObj.searchParams.get('page'),
+      per_page: urlObj.searchParams.get('per_page'),
+      categories: urlObj.searchParams.get('categories')
+    });
     
     const response = await fetch(proxyUrl, { 
       signal: controller.signal,

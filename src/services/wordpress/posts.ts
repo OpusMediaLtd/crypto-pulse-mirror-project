@@ -14,16 +14,16 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
   // Get the correct API base URL
   const baseUrl = getDirectApiUrl();
 
-  // Ensure parameters are numbers
-  const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page);
-  const perPageNum = typeof perPage === 'string' ? parseInt(perPage, 10) : Number(perPage);
+  // Ensure parameters are numbers using parseInt
+  const pageNum = Number.parseInt(String(page), 10);
+  const perPageNum = Number.parseInt(String(perPage), 10);
   
-  // When constructing the URL, convert numbers to strings ONLY at the point of concatenation
-  // This ensures they're treated as primitive values in the URL
+  // Create URL with explicit integers
   let url = `${baseUrl}/posts?_embed&page=${pageNum}&per_page=${perPageNum}`;
 
+  // If category is provided, add it to the URL
   if (category) {
-    const categoryNum = typeof category === 'string' ? parseInt(category, 10) : Number(category);
+    const categoryNum = Number.parseInt(String(category), 10);
     url += `&categories=${categoryNum}`;
   }
 
