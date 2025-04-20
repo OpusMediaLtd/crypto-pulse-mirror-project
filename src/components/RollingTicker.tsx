@@ -7,7 +7,14 @@ import crypto from '@/services/crypto';
 const RollingTicker = () => {
   const { data: cryptoPrices, isLoading } = useQuery({
     queryKey: ['crypto-prices-ticker'],
-    queryFn: () => crypto.getPrices(['bitcoin', 'ethereum', 'binancecoin', 'ripple']),
+    queryFn: () => crypto.getPrices([
+      'bitcoin', 'ethereum', 'binancecoin', 'ripple', 'cardano',
+      'solana', 'polkadot', 'dogecoin', 'avalanche-2', 'tron',
+      'chainlink', 'polygon', 'litecoin', 'bitcoin-cash', 'stellar',
+      'monero', 'cosmos', 'ethereum-classic', 'tezos', 'vechain',
+      'theta-token', 'filecoin', 'aave', 'eos', 'maker',
+      'algorand', 'neo', 'uniswap', 'compound-governance-token', 'dash'
+    ]),
     refetchInterval: 30000,
   });
 
@@ -15,7 +22,7 @@ const RollingTicker = () => {
     return (
       <div className="bg-primary/5 border-b py-2 overflow-hidden">
         <div className="animate-pulse flex gap-8">
-          {[1, 2, 3, 4].map((i) => (
+          {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center gap-2">
               <div className="w-6 h-6 bg-gray-200 rounded-full" />
               <div className="w-20 h-4 bg-gray-200 rounded" />
@@ -26,11 +33,14 @@ const RollingTicker = () => {
     );
   }
 
+  // Duplicate the array to create a seamless infinite scroll effect
+  const duplicatedPrices = [...(cryptoPrices || []), ...(cryptoPrices || [])];
+
   return (
     <div className="bg-primary/5 border-b py-2 overflow-hidden">
-      <div className="animate-[slide_20s_linear_infinite] flex gap-8 whitespace-nowrap">
-        {cryptoPrices?.map((crypto) => (
-          <div key={crypto.id} className="flex items-center gap-2">
+      <div className="animate-[slide_60s_linear_infinite] flex gap-8 whitespace-nowrap">
+        {duplicatedPrices.map((crypto, index) => (
+          <div key={`${crypto.id}-${index}`} className="flex items-center gap-2">
             <Bitcoin className="h-5 w-5 text-primary" />
             <span className="font-medium">{crypto.symbol.toUpperCase()}</span>
             <span>${crypto.current_price.toLocaleString()}</span>
