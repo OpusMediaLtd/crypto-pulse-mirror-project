@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import NewsCard from '@/components/NewsCard';
 import { Button } from '@/components/ui/button';
@@ -57,7 +58,9 @@ const Index = () => {
       <section className="mb-12">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Featured News</h2>
-          <Button variant="outline" as={Link} to="/category/featured">View All</Button>
+          <Button variant="outline" asChild>
+            <Link to="/category/featured">View All</Link>
+          </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayedPosts.map((news, index) => (
@@ -99,9 +102,9 @@ const Index = () => {
                 key={category}
                 variant="outline"
                 className="h-24 text-lg font-semibold"
-                onClick={() => window.location.href = `/category/${category.toLowerCase()}`}
+                asChild
               >
-                {category}
+                <Link to={`/category/${category.toLowerCase()}`}>{category}</Link>
               </Button>
             ))
           ) : (
@@ -111,9 +114,9 @@ const Index = () => {
                 key={category.id}
                 variant="outline"
                 className="h-24 text-lg font-semibold"
-                onClick={() => window.location.href = `/category/${category.slug}`}
+                asChild
               >
-                {category.name}
+                <Link to={`/category/${category.slug}`}>{category.name}</Link>
               </Button>
             ))
           )}

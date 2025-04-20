@@ -4,11 +4,12 @@
  * This service handles fetching data from a WordPress backend via the REST API
  */
 
-const WORDPRESS_API_URL = process.env.REACT_APP_WORDPRESS_API_URL || 'https://yourdomain.com/wp-json/wp/v2';
+const WORDPRESS_API_URL = import.meta.env.VITE_WORDPRESS_API_URL || 'https://yourdomain.com/wp-json/wp/v2';
 
 interface WordPressPost {
   id: number;
   date: string;
+  slug: string; // Add the missing slug property
   title: {
     rendered: string;
   };
