@@ -297,5 +297,6 @@ export default {
   getPosts,
   getPostBySlug,
   getCategories,
-  convertPostToNewsItem
+  convertPostToNewsItem,
+  WORDPRESS_API_URL
 };

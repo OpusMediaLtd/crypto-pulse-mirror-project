@@ -2,6 +2,7 @@
 import { CryptoCasino, CasinoListFilters } from '@/types/CryptoCasino';
 import wordpress from './wordpress';
 
+// Use optional chaining and nullish coalescing for safety
 const WORDPRESS_CASINO_ENDPOINT = `${wordpress.WORDPRESS_API_URL || 'https://yourdomain.com/wp-json/wp/v2'}/crypto-casinos`;
 
 /**
