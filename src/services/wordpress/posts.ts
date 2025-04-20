@@ -1,3 +1,4 @@
+
 import { WORDPRESS_API_URL } from './config';
 import { WordPressPost, NewsItem } from './types';
 import { getMockPosts } from './mocks';
@@ -95,16 +96,20 @@ export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
  */
 export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
   console.log("Converting post to news item:", post);
+  
+  // Log specific fields to verify they're coming through
+  console.log("Post title rendered:", post.title?.rendered);
+  console.log("Post excerpt rendered:", post.excerpt?.rendered);
 
-  // Skip field checks! Always just return the basic structure you provided:
+  // Return a hardcoded object to confirm rendering works
   return {
-    id: post.id,
-    title: post.title.rendered,
-    description: post.excerpt.rendered,
-    image: '', // skip for now
+    id: post.id || 123,
+    title: post.title?.rendered || "Test Title",
+    description: post.excerpt?.rendered || "Test Description",
+    image: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format',
     category: 'News',
-    time: post.date,
-    slug: post.slug,
+    time: post.date || new Date().toISOString(),
+    slug: post.slug || 'test-slug',
     author: 'Author'
   };
 };
