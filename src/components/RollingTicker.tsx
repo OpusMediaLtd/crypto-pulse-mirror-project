@@ -46,9 +46,11 @@ const RollingTicker = () => {
           className="h-6 w-6"
           onError={(e) => {
             // If image fails to load, set fallback icon
-            (e.target as HTMLImageElement).style.display = 'none';
-            // Properly cast nextSibling to HTMLElement to access style property
-            const fallbackIcon = e.target.nextSibling as HTMLElement;
+            const imgElement = e.target as HTMLImageElement;
+            imgElement.style.display = 'none';
+            
+            // Properly cast target element and access its parent to find next sibling
+            const fallbackIcon = imgElement.nextElementSibling as HTMLElement;
             if (fallbackIcon) {
               fallbackIcon.style.display = 'block';
             }
