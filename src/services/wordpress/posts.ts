@@ -53,6 +53,48 @@ const createMockPosts = () => {
         'wp:term': [[{ name: 'Regulation', slug: 'regulation', id: 3 }]],
         author: [{ name: 'CryptoPulse Staff', id: 1 }]
       }
+    },
+    {
+      id: 4,
+      title: { rendered: 'NFT Market Shows Signs of Recovery' },
+      excerpt: { rendered: '<p>After months of declining sales, the NFT market is showing positive indicators.</p>' },
+      content: { rendered: '<p>After months of declining sales, the NFT market is showing positive indicators.</p>' },
+      slug: 'nft-market-recovery',
+      date: new Date().toISOString(),
+      categories: [4],
+      _embedded: {
+        'wp:featuredmedia': [{ source_url: 'https://images.unsplash.com/photo-1642104704074-907c0698cbd9?w=600&auto=format' }],
+        'wp:term': [[{ name: 'NFTs', slug: 'nfts', id: 4 }]],
+        author: [{ name: 'CryptoPulse Staff', id: 1 }]
+      }
+    },
+    {
+      id: 5,
+      title: { rendered: 'DeFi Protocol Security Audit Results' },
+      excerpt: { rendered: '<p>Recent security audits reveal strengths and vulnerabilities in popular DeFi protocols.</p>' },
+      content: { rendered: '<p>Recent security audits reveal strengths and vulnerabilities in popular DeFi protocols.</p>' },
+      slug: 'defi-security-audits',
+      date: new Date().toISOString(),
+      categories: [5],
+      _embedded: {
+        'wp:featuredmedia': [{ source_url: 'https://images.unsplash.com/photo-1639152201720-5e536d254d81?w=600&auto=format' }],
+        'wp:term': [[{ name: 'DeFi', slug: 'defi', id: 5 }]],
+        author: [{ name: 'CryptoPulse Staff', id: 1 }]
+      }
+    },
+    {
+      id: 6,
+      title: { rendered: 'Major Bank Launches Crypto Custody Service' },
+      excerpt: { rendered: '<p>One of the world\'s largest banks now offers cryptocurrency custody for institutional clients.</p>' },
+      content: { rendered: '<p>One of the world\'s largest banks now offers cryptocurrency custody for institutional clients.</p>' },
+      slug: 'bank-crypto-custody',
+      date: new Date().toISOString(),
+      categories: [6],
+      _embedded: {
+        'wp:featuredmedia': [{ source_url: 'https://images.unsplash.com/photo-1560180474-e8563fd75bab?w=600&auto=format' }],
+        'wp:term': [[{ name: 'Banking', slug: 'banking', id: 6 }]],
+        author: [{ name: 'CryptoPulse Staff', id: 1 }]
+      }
     }
   ];
   

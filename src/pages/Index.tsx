@@ -24,7 +24,8 @@ const Index = () => {
     queryKey: ['posts'],
     queryFn: async () => {
       console.log('Fetching posts from WordPress');
-      return await wordpress.getPosts(1, 9);
+      // Ensure we're getting enough posts for all sections
+      return await wordpress.getPosts(1, 12);
     },
     staleTime: 1 * 60 * 1000, // Consider posts fresh for 1 minute
     retry: 2, // Retry twice
@@ -67,14 +68,29 @@ const Index = () => {
   }
 
   const displayedPosts = posts || [];
+  console.log("Total posts received:", displayedPosts.length);
+  
+  // Ensure proper distribution of posts to different sections
   const recentArticles = convertWordPressPosts(displayedPosts);
   
-  // Make sure we have enough items for featured and deep dives
+  // Make sure we have enough items for featured stories (first 3)
   const featuredStories = convertWordPressPosts(displayedPosts.slice(0, 3));
-  const deepDivesPosts = displayedPosts.slice(3, 5);
+  
+  // Deep dives should use posts 3-5 (if available)
+  // Make sure we have at least 2 posts for deep dives
+  const deepDivesPosts = displayedPosts.length >= 5 
+    ? displayedPosts.slice(3, 5) 
+    : (displayedPosts.length >= 3 ? displayedPosts.slice(0, 2) : []);
+    
   const deepDives = deepDivesPosts.length > 0 
     ? convertWordPressPosts(deepDivesPosts) 
     : [];
+    
+  console.log("Articles distribution:", {
+    recentTotal: recentArticles.length,
+    featuredTotal: featuredStories.length,
+    deepDivesTotal: deepDives.length
+  });
 
   return (
     <Layout>
