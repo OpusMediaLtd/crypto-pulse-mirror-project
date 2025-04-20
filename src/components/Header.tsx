@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -23,12 +24,12 @@ const Header = () => {
         </div>
         
         <nav className="flex items-center space-x-6">
-          <div className="flex items-center glass-card rounded-lg p-1">
+          <div className="flex items-center glass-card rounded-lg p-1 dark:bg-slate-800/50">
             <Toggle
               pressed={currency === 'usd'}
               onPressedChange={() => currency === 'eur' && toggleCurrency()}
               aria-label="Toggle to USD"
-              className="flex items-center space-x-1 px-3 py-2 rounded-md data-[state=on]:bg-white data-[state=on]:shadow-sm transition-all duration-200"
+              className="flex items-center space-x-1 px-3 py-2 rounded-md data-[state=on]:bg-white dark:data-[state=on]:bg-slate-700 data-[state=on]:shadow-sm transition-all duration-200"
             >
               <DollarSign className="h-4 w-4" />
               <span className="text-sm font-medium">USD</span>
@@ -37,7 +38,7 @@ const Header = () => {
               pressed={currency === 'eur'}
               onPressedChange={() => currency === 'usd' && toggleCurrency()}
               aria-label="Toggle to EUR"
-              className="flex items-center space-x-1 px-3 py-2 rounded-md data-[state=on]:bg-white data-[state=on]:shadow-sm transition-all duration-200"
+              className="flex items-center space-x-1 px-3 py-2 rounded-md data-[state=on]:bg-white dark:data-[state=on]:bg-slate-700 data-[state=on]:shadow-sm transition-all duration-200"
             >
               <EuroIcon className="h-4 w-4" />
               <span className="text-sm font-medium">EUR</span>
@@ -46,11 +47,11 @@ const Header = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/category/bitcoin" className="story-link text-gray-600 hover:text-primary transition-colors">Bitcoin</Link>
-            <Link to="/category/ethereum" className="story-link text-gray-600 hover:text-primary transition-colors">Ethereum</Link>
-            <Link to="/category/defi" className="story-link text-gray-600 hover:text-primary transition-colors">DeFi</Link>
-            <Link to="/category/nfts" className="story-link text-gray-600 hover:text-primary transition-colors">NFTs</Link>
-            <Link to="/category/markets" className="story-link text-gray-600 hover:text-primary transition-colors">Markets</Link>
+            <Link to="/category/bitcoin" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Bitcoin</Link>
+            <Link to="/category/ethereum" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Ethereum</Link>
+            <Link to="/category/defi" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">DeFi</Link>
+            <Link to="/category/nfts" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">NFTs</Link>
+            <Link to="/category/markets" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Markets</Link>
             <Button variant="outline" size="sm" className="hover-scale" asChild>
               <Link to="/category/featured">Subscribe</Link>
             </Button>
