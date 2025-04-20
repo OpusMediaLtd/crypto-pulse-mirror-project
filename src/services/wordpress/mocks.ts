@@ -44,7 +44,7 @@ export const getMockPosts = (): WordPressPost[] => {
   const mockPosts: WordPressPost[] = [];
   const categories = getMockCategories();
   
-  // Array of real Unsplash crypto-related images that will work
+  // Array of working image URLs from Unsplash
   const cryptoImages = [
     'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format',
     'https://images.unsplash.com/photo-1523759533935-e4b770303016?w=600&auto=format',

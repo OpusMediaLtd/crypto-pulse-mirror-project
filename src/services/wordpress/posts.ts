@@ -104,8 +104,23 @@ export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
   // Default fallback image if nothing is available
   const fallbackImage = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
   
-  // Try to get the featured media URL, with better fallback handling
-  const featuredMediaUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || fallbackImage;
+  // Get the featured media URL with proper fallback handling
+  let featuredMediaUrl;
+  
+  try {
+    // Try to safely access the featured media URL
+    featuredMediaUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+    
+    // Validate the URL
+    if (featuredMediaUrl) {
+      new URL(featuredMediaUrl);
+    } else {
+      featuredMediaUrl = fallbackImage;
+    }
+  } catch (error) {
+    console.warn('Invalid image URL, using fallback:', error);
+    featuredMediaUrl = fallbackImage;
+  }
   
   return {
     title: post.title.rendered,
