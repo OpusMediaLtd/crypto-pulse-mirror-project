@@ -111,14 +111,33 @@ export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
     // Try to safely access the featured media URL
     featuredMediaUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url;
     
-    // Validate the URL
-    if (featuredMediaUrl) {
-      new URL(featuredMediaUrl);
-    } else {
+    // Validate the URL - check if it's a string and not empty
+    if (!featuredMediaUrl || typeof featuredMediaUrl !== 'string' || featuredMediaUrl.trim() === '') {
+      console.warn('Empty or invalid featured media URL for post:', post.id);
       featuredMediaUrl = fallbackImage;
+    } else {
+      // Try to construct a URL object to validate it further
+      try {
+        new URL(featuredMediaUrl);
+      } catch (urlError) {
+        console.warn('Invalid URL format:', featuredMediaUrl);
+        featuredMediaUrl = fallbackImage;
+      }
     }
   } catch (error) {
-    console.warn('Invalid image URL, using fallback:', error);
+    console.warn('Error accessing featured media URL:', error);
+    featuredMediaUrl = fallbackImage;
+  }
+  
+  // Check for common URL patterns that wouldn't be images
+  if (featuredMediaUrl.includes('undefined') || featuredMediaUrl.includes('null')) {
+    console.warn('URL contains invalid substrings:', featuredMediaUrl);
+    featuredMediaUrl = fallbackImage;
+  }
+  
+  // Final check: ensure URL is absolute
+  if (!featuredMediaUrl.startsWith('http')) {
+    console.warn('URL is not absolute:', featuredMediaUrl);
     featuredMediaUrl = fallbackImage;
   }
   
