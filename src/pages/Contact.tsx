@@ -60,15 +60,16 @@ const Contact = () => {
         <div className="mt-12 grid gap-8">
           <div>
             <h3 className="text-lg font-semibold mb-2">Email</h3>
-            <p className="text-muted-foreground">support@cryptopulse.com</p>
+            <p className="text-muted-foreground">support@cryptopulse.gg</p>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-2">Office</h3>
             <p className="text-muted-foreground">
-              123 Blockchain Street<br />
-              Crypto Valley, CV 12345<br />
-              United States
+              Opus Media Limited<br />
+              No 2 Triq Geraldu Farrugia<br />
+              ZEBBUG ZBG4351<br />
+              MALTA
             </p>
           </div>
         </div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from './Header';
 import RollingTicker from './RollingTicker';
@@ -60,18 +59,14 @@ const Layout = ({
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-bold mb-4">Newsletter</h3>
-              <p className="text-muted-foreground dark:text-gray-400 mb-2">Stay updated with the latest crypto news</p>
-              <div className="flex">
-                <input 
-                  type="email" 
-                  placeholder="Your email" 
-                  className="px-4 py-2 rounded-l text-foreground dark:text-white bg-muted/20 dark:bg-slate-800 w-full" 
-                />
-                <button className="bg-primary text-primary-foreground px-4 py-2 rounded-r hover:bg-primary/90 transition-colors">
-                  Subscribe
-                </button>
-              </div>
+              <h3 className="text-lg font-bold mb-4">Contact Us</h3>
+              <p className="text-muted-foreground dark:text-gray-400 mb-2">support@cryptopulse.gg</p>
+              <p className="text-muted-foreground dark:text-gray-400">
+                Opus Media Limited<br />
+                No 2 Triq Geraldu Farrugia<br />
+                ZEBBUG ZBG4351<br />
+                MALTA
+              </p>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-border dark:border-slate-700 text-center text-muted-foreground dark:text-gray-400">
