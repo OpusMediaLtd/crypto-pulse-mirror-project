@@ -29,19 +29,41 @@ const Header = () => {
               pressed={currency === 'usd'}
               onPressedChange={() => currency === 'eur' && toggleCurrency()}
               aria-label="Toggle to USD"
-              className="flex items-center space-x-1 px-3 py-2 rounded-md data-[state=on]:bg-white dark:data-[state=on]:bg-slate-700 data-[state=on]:shadow-sm transition-all duration-200"
+              className="flex items-center space-x-1 px-3 py-2 rounded-md 
+                bg-transparent 
+                data-[state=on]:bg-primary/10 
+                dark:data-[state=on]:bg-primary/20 
+                hover:bg-primary/5 
+                dark:hover:bg-primary/10 
+                transition-all 
+                duration-200 
+                border 
+                border-transparent 
+                data-[state=on]:border-primary/30 
+                dark:data-[state=on]:border-primary/40"
             >
-              <DollarSign className="h-4 w-4" />
-              <span className="text-sm font-medium">USD</span>
+              <DollarSign className="h-4 w-4 text-primary/70 group-data-[state=on]:text-primary" />
+              <span className="text-sm font-medium text-muted-foreground group-data-[state=on]:text-primary">USD</span>
             </Toggle>
             <Toggle
               pressed={currency === 'eur'}
               onPressedChange={() => currency === 'usd' && toggleCurrency()}
               aria-label="Toggle to EUR"
-              className="flex items-center space-x-1 px-3 py-2 rounded-md data-[state=on]:bg-white dark:data-[state=on]:bg-slate-700 data-[state=on]:shadow-sm transition-all duration-200"
+              className="flex items-center space-x-1 px-3 py-2 rounded-md 
+                bg-transparent 
+                data-[state=on]:bg-primary/10 
+                dark:data-[state=on]:bg-primary/20 
+                hover:bg-primary/5 
+                dark:hover:bg-primary/10 
+                transition-all 
+                duration-200 
+                border 
+                border-transparent 
+                data-[state=on]:border-primary/30 
+                dark:data-[state=on]:border-primary/40"
             >
-              <EuroIcon className="h-4 w-4" />
-              <span className="text-sm font-medium">EUR</span>
+              <EuroIcon className="h-4 w-4 text-primary/70 group-data-[state=on]:text-primary" />
+              <span className="text-sm font-medium text-muted-foreground group-data-[state=on]:text-primary">EUR</span>
             </Toggle>
           </div>
           
