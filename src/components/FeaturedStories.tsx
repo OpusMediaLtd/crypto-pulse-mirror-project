@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -19,7 +18,7 @@ interface FeaturedStoriesProps {
 }
 
 const FeaturedStories = ({ stories }: FeaturedStoriesProps) => {
-  // Fallback image if needed
+  // Fallback image only for broken images, not for mock content
   const fallbackImage = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
   
   // Function to validate image URL
@@ -36,18 +35,8 @@ const FeaturedStories = ({ stories }: FeaturedStoriesProps) => {
     return url;
   };
   
-  // Guard against empty stories array
   if (!stories || stories.length === 0) {
-    return (
-      <div>
-        <h2 className="text-xl font-bold mb-4">Crypto News Spotlight</h2>
-        <div className="animate-pulse">
-          <div className="h-64 bg-gray-200 rounded-lg mb-4"></div>
-          <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (

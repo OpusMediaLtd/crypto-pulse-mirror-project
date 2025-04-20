@@ -16,7 +16,7 @@ interface RecentArticlesProps {
 }
 
 const RecentArticles = ({ articles }: RecentArticlesProps) => {
-  // Fallback image if needed
+  // Fallback image only for broken images, not for mock content
   const fallbackImage = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
   
   // Function to validate image URL
@@ -32,6 +32,10 @@ const RecentArticles = ({ articles }: RecentArticlesProps) => {
     }
     return url;
   };
+
+  if (!articles || articles.length === 0) {
+    return null;
+  }
 
   return (
     <div className="mb-6">
