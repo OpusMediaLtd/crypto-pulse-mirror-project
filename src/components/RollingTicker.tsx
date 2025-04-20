@@ -47,7 +47,11 @@ const RollingTicker = () => {
           onError={(e) => {
             // If image fails to load, set fallback icon
             (e.target as HTMLImageElement).style.display = 'none';
-            (e.target as HTMLImageElement).nextSibling!.style.display = 'block';
+            // Properly cast nextSibling to HTMLElement to access style property
+            const fallbackIcon = e.target.nextSibling as HTMLElement;
+            if (fallbackIcon) {
+              fallbackIcon.style.display = 'block';
+            }
           }}
         />
       );
