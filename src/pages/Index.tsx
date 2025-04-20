@@ -25,19 +25,7 @@ const Index = () => {
 
   // Convert WordPress posts to the format expected by components
   const convertWordPressPosts = (posts = []) => {
-    return posts.map(post => {
-      const featuredMediaUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || 'https://images.unsplash.com/photo-1518770660439-4636190af475';
-      
-      return {
-        id: post.id,
-        title: post.title.rendered,
-        category: 'News', // Default category
-        time: new Date(post.date).toLocaleString(),
-        slug: post.slug,
-        image: featuredMediaUrl,
-        author: 'CryptoPulse'
-      };
-    });
+    return posts.map(post => wordpress.convertPostToNewsItem(post));
   };
 
   const displayedPosts = latestPosts || [];

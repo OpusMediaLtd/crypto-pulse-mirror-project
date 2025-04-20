@@ -16,6 +16,23 @@ interface RecentArticlesProps {
 }
 
 const RecentArticles = ({ articles }: RecentArticlesProps) => {
+  // Fallback image if needed
+  const fallbackImage = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
+  
+  // Function to validate image URL
+  const getValidImageUrl = (url: string) => {
+    if (!url || 
+        typeof url !== 'string' || 
+        url.includes('undefined') || 
+        url.includes('null') || 
+        url === 'null' || 
+        url === 'undefined' || 
+        !url.startsWith('http')) {
+      return fallbackImage;
+    }
+    return url;
+  };
+
   return (
     <div className="mb-6">
       <div className="flex items-center mb-4">
@@ -30,9 +47,15 @@ const RecentArticles = ({ articles }: RecentArticlesProps) => {
                 <Link to={`/post/${article.slug}`} className="shrink-0">
                   <div className="w-16 h-16 overflow-hidden rounded">
                     <img 
-                      src={article.image} 
+                      src={getValidImageUrl(article.image)} 
                       alt={article.title}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null; // Prevent infinite loop
+                        target.src = fallbackImage;
+                      }}
+                      loading="lazy"
                     />
                   </div>
                 </Link>

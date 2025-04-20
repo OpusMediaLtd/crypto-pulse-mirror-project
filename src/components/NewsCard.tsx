@@ -14,13 +14,28 @@ interface NewsCardProps {
 
 const NewsCard = ({ title, description, image, category, time, slug }: NewsCardProps) => {
   const [imageError, setImageError] = useState(false);
-  const [imageSrc, setImageSrc] = useState(image);
+  const [imageSrc, setImageSrc] = useState('');
   const fallbackImage = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
   
-  // Reset error state if image changes
+  // Initialize and validate image source
   useEffect(() => {
+    // Reset state when image prop changes
     setImageError(false);
-    setImageSrc(image);
+    
+    // Validate image URL
+    if (!image || 
+        typeof image !== 'string' || 
+        image.includes('undefined') || 
+        image.includes('null') || 
+        image === 'null' || 
+        image === 'undefined' || 
+        !image.startsWith('http')) {
+      console.warn('Invalid image URL detected:', image);
+      setImageSrc(fallbackImage);
+      setImageError(true);
+    } else {
+      setImageSrc(image);
+    }
   }, [image]);
   
   const handleImageError = () => {
@@ -28,15 +43,6 @@ const NewsCard = ({ title, description, image, category, time, slug }: NewsCardP
     setImageError(true);
     setImageSrc(fallbackImage);
   };
-
-  // Pre-validate the image URL
-  useEffect(() => {
-    if (!image || image === 'undefined' || image === 'null') {
-      console.warn('Invalid image URL provided:', image);
-      setImageSrc(fallbackImage);
-      setImageError(true);
-    }
-  }, [image]);
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow hover-scale">

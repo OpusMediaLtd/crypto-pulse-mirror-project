@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -18,6 +19,37 @@ interface FeaturedStoriesProps {
 }
 
 const FeaturedStories = ({ stories }: FeaturedStoriesProps) => {
+  // Fallback image if needed
+  const fallbackImage = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
+  
+  // Function to validate image URL
+  const getValidImageUrl = (url: string) => {
+    if (!url || 
+        typeof url !== 'string' || 
+        url.includes('undefined') || 
+        url.includes('null') || 
+        url === 'null' || 
+        url === 'undefined' || 
+        !url.startsWith('http')) {
+      return fallbackImage;
+    }
+    return url;
+  };
+  
+  // Guard against empty stories array
+  if (!stories || stories.length === 0) {
+    return (
+      <div>
+        <h2 className="text-xl font-bold mb-4">Crypto News Spotlight</h2>
+        <div className="animate-pulse">
+          <div className="h-64 bg-gray-200 rounded-lg mb-4"></div>
+          <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">Crypto News Spotlight</h2>
@@ -27,9 +59,15 @@ const FeaturedStories = ({ stories }: FeaturedStoriesProps) => {
           <Link to={`/post/${stories[0].slug}`} className="block">
             <div className="aspect-video relative">
               <img 
-                src={stories[0].image} 
+                src={getValidImageUrl(stories[0].image)} 
                 alt={stories[0].title}
                 className="object-cover w-full h-full"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null; // Prevent infinite loop
+                  target.src = fallbackImage;
+                }}
+                loading="lazy"
               />
             </div>
             <div className="p-4">
@@ -50,9 +88,15 @@ const FeaturedStories = ({ stories }: FeaturedStoriesProps) => {
             <Link to={`/post/${story.slug}`} className="shrink-0">
               <div className="w-32 h-24 overflow-hidden">
                 <img 
-                  src={story.image} 
+                  src={getValidImageUrl(story.image)} 
                   alt={story.title}
                   className="object-cover w-full h-full"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null; // Prevent infinite loop
+                    target.src = fallbackImage;
+                  }}
+                  loading="lazy"
                 />
               </div>
             </Link>
