@@ -27,7 +27,7 @@ const MainContentGrid = ({ recentArticles, featuredStories, deepDives }: MainCon
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
       <div className="md:col-span-3">
         <Suspense fallback={<LoadingSkeleton />}>
-          <RecentArticles articles={recentArticles} />
+          {recentArticles.length > 0 && <RecentArticles articles={recentArticles} />}
           <div className="mt-6">
             <AdSpace variant="sidebar" message="Premium Trading Tools - Special Offer" />
           </div>
@@ -36,7 +36,7 @@ const MainContentGrid = ({ recentArticles, featuredStories, deepDives }: MainCon
 
       <div className="md:col-span-6">
         <Suspense fallback={<LoadingSkeleton />}>
-          <FeaturedStories stories={featuredStories} />
+          {featuredStories.length > 0 && <FeaturedStories stories={featuredStories} />}
           <TopCasinosCard />
           <div className="mt-8">
             <AdSpace variant="banner" message="Get Started with Crypto Trading - 30% Discount" />
@@ -46,7 +46,7 @@ const MainContentGrid = ({ recentArticles, featuredStories, deepDives }: MainCon
 
       <div className="md:col-span-3">
         <Suspense fallback={<LoadingSkeleton />}>
-          <DeepDives articles={deepDives} />
+          {deepDives.length > 0 && <DeepDives articles={deepDives} />}
           <div className="mt-6">
             <AdSpace variant="sidebar" message="Crypto Market Analysis Tools" />
           </div>
