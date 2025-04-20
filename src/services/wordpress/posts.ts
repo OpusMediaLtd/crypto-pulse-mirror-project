@@ -1,6 +1,6 @@
+
 import { WORDPRESS_API_URL, getDirectApiUrl } from './config';
 import { WordPressPost, NewsItem } from './types';
-import { getMockPosts } from './mocks';
 
 // Cache durations
 const POSTS_CACHE_TIME = 5 * 60 * 1000; // 5 minutes
@@ -206,15 +206,3 @@ const extractAuthor = (post: WordPressPost): string => {
   }
   return 'CryptoPulse Staff';
 };
-
-// Fallback function for invalid posts
-const createFallbackNewsItem = (): NewsItem => ({
-  id: 0,
-  title: 'Unavailable Content',
-  description: 'Content could not be loaded',
-  image: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format',
-  category: 'News',
-  time: new Date().toLocaleString(),
-  slug: 'unavailable',
-  author: 'Unknown'
-});

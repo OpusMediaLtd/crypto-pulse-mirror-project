@@ -21,15 +21,45 @@ const Index = () => {
       return wpPosts;
     },
     staleTime: 2 * 60 * 1000, // Consider posts fresh for 2 minutes
+    retry: 2, // Only retry twice
+    retryDelay: 1000, // 1 second between retries
   });
 
   // Convert WordPress posts to the format expected by components
   const convertWordPressPosts = (posts = []) => {
+    if (!posts || posts.length === 0) return [];
+    
     console.log('Converting WordPress posts to news items:', posts);
     const newsItems = posts.map(post => wordpress.convertPostToNewsItem(post)).filter(Boolean);
     console.log('Converted news items:', newsItems);
     return newsItems;
   };
+
+  // If there's an error or no posts, don't display anything
+  if (error || !posts || posts.length === 0) {
+    React.useEffect(() => {
+      if (error) {
+        console.error('Error fetching posts:', error);
+        toast({
+          title: "Could not load content",
+          description: "Please try again later",
+          variant: "destructive"
+        });
+      }
+    }, [error]);
+
+    // Return minimal layout with no content
+    return (
+      <Layout>
+        <div className="mt-12">
+          <StatsSection />
+        </div>
+        <div className="mt-12">
+          <NewsletterSignup />
+        </div>
+      </Layout>
+    );
+  }
 
   const displayedPosts = posts || [];
   const recentArticles = convertWordPressPosts(displayedPosts);
@@ -40,17 +70,6 @@ const Index = () => {
   const deepDives = deepDivesPosts.length > 0 
     ? convertWordPressPosts(deepDivesPosts) 
     : [];
-
-  React.useEffect(() => {
-    if (error) {
-      console.error('Error fetching posts:', error);
-      toast({
-        title: "Could not load latest posts",
-        description: "Using placeholder content instead",
-        variant: "destructive"
-      });
-    }
-  }, [error]);
 
   return (
     <Layout>
