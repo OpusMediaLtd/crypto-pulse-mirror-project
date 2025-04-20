@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
@@ -22,15 +21,12 @@ const TopCasinosCard = () => {
               Explore our handpicked selection of the best cryptocurrency gambling platforms, featuring exclusive bonuses and secure gaming options.
             </p>
             <div className="mt-4">
-              <Button 
-                asChild 
-                className="inline-flex items-center justify-center gap-2"
-              >
-                <Link to="/crypto-casinos" className="flex items-center">
-                  View Full Rankings 
+              <Link to="/crypto-casinos">
+                <Button variant="default" size="default" className="w-auto">
+                  <span>View Full Rankings</span>
                   <ExternalLink className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </div>
           </div>
           <CasinoList limit={3} />
