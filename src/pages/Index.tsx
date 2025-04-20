@@ -12,12 +12,14 @@ const Index = () => {
   
   const { data: latestPosts, isLoading: postsLoading } = useQuery({
     queryKey: ['posts'],
-    queryFn: () => wordpress.getPosts(1, 5)
+    queryFn: () => wordpress.getPosts(1, 5),
+    staleTime: 2 * 60 * 1000, // Consider posts fresh for 2 minutes
   });
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
-    queryFn: () => wordpress.getCategories()
+    queryFn: () => wordpress.getCategories(),
+    staleTime: 5 * 60 * 1000, // Categories don't change often
   });
 
   const recentArticles = [

@@ -11,7 +11,8 @@ const CategoryPosts = () => {
   
   const { data: categories } = useQuery({
     queryKey: ['categories'],
-    queryFn: () => wordpress.getCategories()
+    queryFn: () => wordpress.getCategories(),
+    staleTime: 5 * 60 * 1000, // Categories don't change often
   });
   
   const category = categories?.find(cat => cat.slug === slug);
@@ -19,7 +20,8 @@ const CategoryPosts = () => {
   const { data: posts, isLoading } = useQuery({
     queryKey: ['posts', 'category', slug],
     queryFn: () => wordpress.getPosts(1, 12, category?.id),
-    enabled: !!category?.id
+    enabled: !!category?.id,
+    staleTime: 2 * 60 * 1000, // Consider posts fresh for 2 minutes
   });
 
   return (
