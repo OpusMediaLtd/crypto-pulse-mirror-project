@@ -2,7 +2,7 @@
 /**
  * WordPress API services for categories
  */
-import { WORDPRESS_API_URL } from './config';
+import { WORDPRESS_API_URL, DEFAULT_WP_API_URL } from './config';
 import { WordPressCategory } from './types';
 import { getMockCategories } from './mocks';
 
@@ -11,7 +11,7 @@ import { getMockCategories } from './mocks';
  */
 export const getCategories = async (): Promise<WordPressCategory[]> => {
   // If WORDPRESS_API_URL is not configured, return mock data
-  if (WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
+  if (WORDPRESS_API_URL === DEFAULT_WP_API_URL) {
     return getMockCategories();
   }
   
