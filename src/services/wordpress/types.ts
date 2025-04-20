@@ -38,4 +38,5 @@ export interface NewsItem {
   time: string;
   slug: string;
   id: number;
+  author: string; // Adding the author property to the interface
 }
