@@ -9,9 +9,9 @@ interface CryptoPrice {
 
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
 
-export const getPrices = async (ids: string[]): Promise<CryptoPrice[]> => {
+export const getPrices = async (ids: string[], currency: string = 'usd'): Promise<CryptoPrice[]> => {
   const response = await fetch(
-    `${COINGECKO_API_URL}/coins/markets?vs_currency=usd&ids=${ids.join(',')}&order=market_cap_desc&sparkline=false`
+    `${COINGECKO_API_URL}/coins/markets?vs_currency=${currency}&ids=${ids.join(',')}&order=market_cap_desc&sparkline=false`
   );
   
   if (!response.ok) {
@@ -24,4 +24,3 @@ export const getPrices = async (ids: string[]): Promise<CryptoPrice[]> => {
 export default {
   getPrices,
 };
-
