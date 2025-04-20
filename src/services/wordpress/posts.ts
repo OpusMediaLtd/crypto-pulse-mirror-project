@@ -1,4 +1,4 @@
-import { WORDPRESS_API_URL } from './config';
+import { getDirectApiUrl } from './config';
 import { WordPressPost, NewsItem } from './types';
 import { getMockPosts } from './mocks';
 
@@ -71,8 +71,11 @@ const fetchWithCache = async (url: string, cacheDuration: number) => {
  * Fetch posts from WordPress
  */
 export const getPosts = async (page = 1, perPage = 9, category?: number): Promise<WordPressPost[]> => {
-  // Construct the URL with the correct query parameter format
-  let url = `${WORDPRESS_API_URL}/posts?_embed&page=${page}&per_page=${perPage}`;
+  // Get the correct API base URL
+  const baseUrl = getDirectApiUrl();
+  
+  // Construct the URL with the correct format based on the screenshots
+  let url = `${baseUrl}/posts?_embed&page=${page}&per_page=${perPage}`;
 
   if (category) {
     url += `&categories=${category}`;
@@ -88,25 +91,16 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
     } else {
       console.warn('API returned empty or invalid posts array');
       
-      // In production, if no real posts are available, use mock data as fallback
-      if (import.meta.env.MODE === 'production') {
-        console.log('Using mock posts as fallback in production');
-        return getMockPosts();
-      }
-      
-      return [];
+      // Always use mock data as fallback since we're having API issues
+      console.log('Using mock posts as fallback');
+      return getMockPosts();
     }
   } catch (error) {
     console.error('Error fetching posts:', error);
     
-    // Use mock data as fallback in case of error
-    if (import.meta.env.MODE === 'production') {
-      console.log('Using mock posts as fallback due to fetch error');
-      return getMockPosts();
-    }
-    
-    // Return an empty array on error
-    return [];
+    // Always use mock data as fallback for errors
+    console.log('Using mock posts as fallback due to fetch error');
+    return getMockPosts();
   }
 };
 

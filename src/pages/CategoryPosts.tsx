@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
@@ -8,10 +8,47 @@ import wordpress from '@/services/wordpress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const CategoryPosts = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [apiTestStatus, setApiTestStatus] = useState<{success: boolean, message: string} | null>(null);
+  
+  // Test direct API connection
+  useEffect(() => {
+    const testApiConnection = async () => {
+      try {
+        // Test both endpoint formats to diagnose the issue
+        const directEndpoint = `${wordpress.WORDPRESS_API_URL}/categories`;
+        console.log('Testing direct API connection to:', directEndpoint);
+        
+        const response = await fetch(directEndpoint, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        
+        if (response.ok) {
+          setApiTestStatus({ success: true, message: 'API connection successful' });
+          console.log('API connection test successful');
+        } else {
+          setApiTestStatus({ 
+            success: false, 
+            message: `API returned status: ${response.status} ${response.statusText}` 
+          });
+          console.error('API connection test failed:', response.status, response.statusText);
+        }
+      } catch (error) {
+        setApiTestStatus({ 
+          success: false, 
+          message: `API connection error: ${error instanceof Error ? error.message : String(error)}` 
+        });
+        console.error('API connection test error:', error);
+      }
+    };
+    
+    testApiConnection();
+  }, []);
   
   const { data: categories, isLoading: categoriesLoading, refetch: refetchCategories } = useQuery({
     queryKey: ['categories'],
@@ -34,7 +71,7 @@ const CategoryPosts = () => {
     queryFn: () => wordpress.getPosts(1, 12, category?.id),
     enabled: !!slug,
     staleTime: 2 * 60 * 1000, // Consider posts fresh for 2 minutes
-    retry: 2, // Try up to 3 times (initial + 2 retries)
+    retry: 3, // Try up to 4 times (initial + 3 retries)
     retryDelay: 1000,
   });
 
@@ -44,7 +81,7 @@ const CategoryPosts = () => {
       console.error('Error loading category posts:', postsError);
       toast({
         title: "Error loading posts",
-        description: "There was a problem loading posts for this category. Using fallback content.",
+        description: "There was a problem loading posts from the WordPress API. Using fallback content.",
         variant: "destructive"
       });
     }
@@ -57,23 +94,44 @@ const CategoryPosts = () => {
     categoriesFound: categories?.length,
     postsFound: posts?.length,
     isLoading: postsLoading,
+    apiTestStatus,
     error: postsError ? String(postsError) : null
   });
 
   const isLoading = categoriesLoading || postsLoading;
   
   const handleRefresh = () => {
+    setApiTestStatus(null);
     refetchCategories();
     refetchPosts();
     toast({
       title: "Refreshing content",
       description: "Fetching fresh content from the server..."
     });
+    
+    // Test API connection again
+    const testApiConnection = async () => {
+      try {
+        const directEndpoint = `${wordpress.WORDPRESS_API_URL}/categories`;
+        const response = await fetch(directEndpoint);
+        setApiTestStatus({ 
+          success: response.ok, 
+          message: response.ok ? 'Connection successful' : `Status: ${response.status}` 
+        });
+      } catch (error) {
+        setApiTestStatus({ 
+          success: false, 
+          message: `Connection error: ${error instanceof Error ? error.message : String(error)}` 
+        });
+      }
+    };
+    
+    testApiConnection();
   };
 
   return (
     <Layout 
-      title={category?.name || 'Category'}
+      title={category?.name || 'Bitcoin'}
       description={`Latest ${category?.name || 'cryptocurrency'} news and analysis from CryptoPulse`}
       canonical={`https://cryptopulse.com/category/${slug}`}
     >
@@ -89,6 +147,19 @@ const CategoryPosts = () => {
             <RefreshCw className="h-4 w-4" /> Refresh
           </Button>
         </div>
+        
+        {apiTestStatus && !apiTestStatus.success && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>API Connection Issue</AlertTitle>
+            <AlertDescription>
+              There's a problem connecting to the WordPress API: {apiTestStatus.message}
+              <div className="mt-2">
+                <p className="text-sm">Check your WordPress CORS settings and make sure the API endpoint is accessible.</p>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
         
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -113,24 +184,23 @@ const CategoryPosts = () => {
             <h3 className="text-xl font-medium mb-2">No articles found</h3>
             <p className="text-gray-500 mb-6">
               {postsError 
-                ? "There was an error loading articles. You can try refreshing or check back later."
+                ? "There was an error loading articles. You can try refreshing or check API settings."
                 : "There are currently no articles in this category. Please check back later."}
             </p>
             
-            {postsError && (
-              <Button onClick={handleRefresh} className="mb-4">
-                <RefreshCw className="mr-2 h-4 w-4" /> Try Again
-              </Button>
-            )}
+            <Button onClick={handleRefresh} className="mb-4">
+              <RefreshCw className="mr-2 h-4 w-4" /> Try Again
+            </Button>
             
             <div className="mt-4 mx-auto max-w-md">
-              <details className="text-left text-xs">
+              <details className="text-left text-xs" open>
                 <summary className="cursor-pointer text-gray-500">Debug information</summary>
                 <pre className="mt-2 bg-gray-100 p-4 rounded-lg overflow-auto max-h-40 text-xs whitespace-pre-wrap">
                   {JSON.stringify({ 
                     slug, 
                     categoryId: category?.id,
                     apiUrl: wordpress.WORDPRESS_API_URL,
+                    apiTestStatus,
                     error: postsError ? String(postsError) : null 
                   }, null, 2)}
                 </pre>

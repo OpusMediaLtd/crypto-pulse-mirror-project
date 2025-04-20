@@ -2,13 +2,21 @@
 // Check for environment variables, then use the fallback URL if not available
 export const WORDPRESS_API_URL = import.meta.env.VITE_WORDPRESS_API || 'https://cryptopulsegg-10eda24.ingress-bonde.ewp.live/wp-json/wp/v2';
 
+// Based on the screenshots, our URLs need to use the direct path format
+export const getDirectApiUrl = () => {
+  const baseUrl = WORDPRESS_API_URL.replace('/index.php?rest_route=/wp/v2', '/wp-json/wp/v2');
+  console.log('Using WordPress API base URL:', baseUrl);
+  return baseUrl;
+};
+
 // Original fallback URL kept for reference
 export const DEFAULT_WP_API_URL = 'https://yourdomain.com/wp-json/wp/v2';
 
 // Log the API URL being used
 console.log('WordPress API URL being used:', WORDPRESS_API_URL);
+console.log('Direct API URL format:', getDirectApiUrl());
 
 export default {
-  WORDPRESS_API_URL,
+  WORDPRESS_API_URL: getDirectApiUrl(),
   DEFAULT_WP_API_URL
 };
