@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -145,7 +144,6 @@ const Index = () => {
 
   return (
     <Layout>
-      <StatsSection />
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Recent Articles (Left Sidebar) */}
         <div className="md:col-span-3">
@@ -244,6 +242,9 @@ const Index = () => {
             ))}
           </div>
         </div>
+      </div>
+      <div className="mt-12">
+        <StatsSection />
       </div>
       <div className="mt-12">
         <NewsletterSignup />
