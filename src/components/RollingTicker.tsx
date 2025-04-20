@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Bitcoin, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import crypto from '@/services/crypto';
 
 const RollingTicker = () => {
@@ -37,11 +37,22 @@ const RollingTicker = () => {
   const duplicatedPrices = [...(cryptoPrices || []), ...(cryptoPrices || [])];
 
   const getCryptoIcon = (id: string) => {
-    switch (id) {
-      case 'bitcoin':
-        return <Bitcoin className="h-5 w-5 text-primary" />;
-      default:
-        return <DollarSign className="h-5 w-5 text-primary" />;
+    try {
+      // Using CryptoIcons CDN - supports most major cryptocurrencies
+      return (
+        <img 
+          src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1.0.0/32/color/${id.toLowerCase()}.png`} 
+          alt={id}
+          className="h-6 w-6"
+          onError={(e) => {
+            // If image fails to load, set fallback icon
+            (e.target as HTMLImageElement).style.display = 'none';
+            (e.target as HTMLImageElement).nextSibling!.style.display = 'block';
+          }}
+        />
+      );
+    } catch (error) {
+      return <DollarSign className="h-5 w-5 text-primary" />;
     }
   };
 
@@ -50,7 +61,10 @@ const RollingTicker = () => {
       <div className="animate-[slide_60s_linear_infinite] flex gap-8 whitespace-nowrap">
         {duplicatedPrices.map((crypto, index) => (
           <div key={`${crypto.id}-${index}`} className="flex items-center gap-2">
-            {getCryptoIcon(crypto.id)}
+            <div className="relative h-6 w-6 flex items-center justify-center">
+              {getCryptoIcon(crypto.id)}
+              <DollarSign className="h-5 w-5 text-primary absolute" style={{display: 'none'}} />
+            </div>
             <span className="font-medium">{crypto.symbol.toUpperCase()}</span>
             <span>${crypto.current_price.toLocaleString()}</span>
             <span className={`flex items-center ${
