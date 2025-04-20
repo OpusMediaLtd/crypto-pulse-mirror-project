@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -79,9 +78,12 @@ const CasinoListItem = ({ casino, onReview }: CasinoListItemProps) => {
           
           {/* Action Buttons */}
           <div className="md:col-span-3 p-6 flex flex-col items-center justify-center bg-muted/10">
-            <Button className="w-full mb-4" onClick={handleClick}>
-              Visit Casino
-              <ExternalLink className="ml-2 h-4 w-4" />
+            <Button 
+              className="w-full mb-4 flex items-center justify-center space-x-2" 
+              onClick={handleClick}
+            >
+              <span>Visit Casino</span>
+              <ExternalLink className="h-4 w-4" />
             </Button>
             
             {/* Review */}
