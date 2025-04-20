@@ -39,7 +39,7 @@ const fetchWithCache = async (url: string, cacheDuration: number) => {
  */
 export const getPosts = async (page = 1, perPage = 9, category?: number): Promise<WordPressPost[]> => {
   let url = `${WORDPRESS_API_URL}/posts?_embed&page=${page}&per_page=${perPage}`;
-  
+
   if (category) {
     url += `&categories=${category}`;
   }
@@ -48,7 +48,7 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
     return await fetchWithCache(url, POSTS_CACHE_TIME);
   } catch (error) {
     console.error('Error fetching posts:', error);
-    throw error;
+    return getMockPosts().slice(0, perPage);
   }
 };
 
