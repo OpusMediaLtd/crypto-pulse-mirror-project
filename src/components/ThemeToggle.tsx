@@ -27,11 +27,14 @@ const ThemeToggle = () => {
   React.useEffect(() => {
     const root = window.document.documentElement;
     
-    // Remove both classes to ensure clean state
-    root.classList.remove('light', 'dark');
-    
-    // Add the current theme class
-    root.classList.add(theme);
+    // Remove the old theme class and add the new one
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    } else {
+      root.classList.remove('dark');
+      root.classList.add('light');
+    }
     
     // Save preference to localStorage
     localStorage.setItem('theme', theme);

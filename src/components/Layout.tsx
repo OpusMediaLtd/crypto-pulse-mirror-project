@@ -1,7 +1,9 @@
+
 import React from 'react';
 import Header from './Header';
 import RollingTicker from './RollingTicker';
 import SEOHead from './SEOHead';
+
 interface LayoutProps {
   children: React.ReactNode;
   title?: string;
@@ -10,6 +12,7 @@ interface LayoutProps {
   ogType?: 'website' | 'article';
   canonical?: string;
 }
+
 const Layout = ({
   children,
   title = 'Cryptocurrency News & Analysis',
@@ -18,7 +21,8 @@ const Layout = ({
   ogType,
   canonical
 }: LayoutProps) => {
-  return <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white bg-slate-950">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900 dark:bg-none">
       <SEOHead title={title} description={description} ogImage={ogImage} ogType={ogType} canonical={canonical} />
       <Header />
       <RollingTicker />
@@ -68,6 +72,8 @@ const Layout = ({
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Layout;
