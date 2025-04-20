@@ -79,10 +79,10 @@ const CasinoListItem = ({ casino, onReview }: CasinoListItemProps) => {
           {/* Action Buttons */}
           <div className="md:col-span-3 p-6 flex flex-col items-center justify-center bg-muted/10">
             <Button 
-              className="w-full mb-4 inline-flex items-center justify-center gap-2 text-sm" 
               onClick={handleClick}
+              className="w-full mb-4 bg-primary hover:bg-primary/90 text-white font-medium px-6 py-2 rounded-md transition-colors duration-200 flex items-center justify-center space-x-2"
             >
-              <span className="flex-grow-0">Visit Casino</span>
+              <span className="whitespace-nowrap">Visit Casino</span>
               <ExternalLink className="h-4 w-4 flex-shrink-0" />
             </Button>
             
