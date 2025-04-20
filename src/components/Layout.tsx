@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Header from './Header';
-import PriceTicker from './PriceTicker';
+import RollingTicker from './RollingTicker';
 import SEOHead from './SEOHead';
 
 interface LayoutProps {
@@ -31,7 +31,7 @@ const Layout = ({
         canonical={canonical}
       />
       <Header />
-      <PriceTicker />
+      <RollingTicker />
       <main className="container mx-auto px-4 py-8">
         {children}
       </main>
