@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,16 +13,17 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
 interface CasinoListProps {
+  type?: string;
   limit?: number;
 }
 
-const CasinoList: React.FC<CasinoListProps> = ({ limit }) => {
+const CasinoList: React.FC<CasinoListProps> = ({ type = 'casinos', limit }) => {
   const [filters, setFilters] = useState<CasinoListFilters>({});
   const [showFilters, setShowFilters] = useState(false);
   
   const { data: casinos, isLoading, refetch } = useQuery({
-    queryKey: ['crypto-casinos', filters],
-    queryFn: () => casinoService.getCryptoCasinos(filters)
+    queryKey: ['crypto-casinos', type, filters],
+    queryFn: () => casinoService.getCryptoCasinos(type, filters)
   });
   
   const handleReview = async (casinoId: number, isPositive: boolean) => {
@@ -85,10 +87,10 @@ const CasinoList: React.FC<CasinoListProps> = ({ limit }) => {
               <div>
                 <CardTitle className="text-2xl flex items-center">
                   <Bitcoin className="mr-2 h-6 w-6 text-primary" />
-                  Top Crypto Casinos
+                  Top Crypto {type === 'casinos' ? 'Casinos' : 'Exchanges'}
                 </CardTitle>
                 <CardDescription>
-                  The best online casinos accepting cryptocurrency
+                  The best online {type === 'casinos' ? 'casinos' : 'exchanges'} accepting cryptocurrency
                 </CardDescription>
               </div>
               <div className="mt-4 md:mt-0 flex items-center">

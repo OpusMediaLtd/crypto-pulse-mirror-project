@@ -1,5 +1,6 @@
+
 import { CryptoCasino, CasinoListFilters } from '@/types/CryptoCasino';
-import { WORDPRESS_CASINO_ENDPOINT } from './wordpress/config';
+import { WORDPRESS_API_URL } from './wordpress/config';
 import { fetchWithCache } from './wordpress/utils';
 
 // Cache duration for casino data
@@ -32,11 +33,37 @@ const betpandaCasino: CryptoCasino = {
 };
 
 /**
- * Fetch crypto casino listings from WordPress and insert Betpanda.io at the top
+ * Add Cryptorino.io as the second item in the casino toplist
  */
-export const getCryptoCasinos = async (filters?: CasinoListFilters): Promise<CryptoCasino[]> => {
+const cryptorinoCasino: CryptoCasino = {
+  id: 100001,
+  name: "Cryptorino.io",
+  logo: "https://placehold.co/300x300/1F2937/FFFFFF?text=Cryptorino.io",
+  rating: 4.5,
+  description: "Cryptorino.io offers an exceptional crypto gambling experience with thousands of games, lightning-fast withdrawals, and generous bonuses for both new and existing players.",
+  acceptedCurrencies: [
+    { name: 'Bitcoin', code: 'BTC', icon: '₿' },
+    { name: 'Ethereum', code: 'ETH', icon: 'Ξ' },
+    { name: 'Tether', code: 'USDT', icon: '₮' },
+    { name: 'Cardano', code: 'ADA', icon: 'A' }
+  ],
+  welcomeBonus: '400% up to 3 BTC + 200 Free Spins',
+  affiliateLink: 'https://cryptorino.io/',
+  featured: true,
+  review: {
+    thumbsUp: 876,
+    thumbsDown: 21
+  },
+  rank: 2
+};
+
+/**
+ * Fetch crypto casino/exchange listings from WordPress and insert fixed entries at the top
+ */
+export const getCryptoCasinos = async (type = 'casinos', filters?: CasinoListFilters): Promise<CryptoCasino[]> => {
   // Build query parameters
-  let url = `${WORDPRESS_CASINO_ENDPOINT}?_embed&per_page=50`;
+  const endpoint = type === 'exchanges' ? 'crypto-exchanges' : 'casinos';
+  let url = `${WORDPRESS_API_URL}/${endpoint}?_embed&per_page=50`;
 
   if (filters) {
     if (filters.currency) {
@@ -49,45 +76,46 @@ export const getCryptoCasinos = async (filters?: CasinoListFilters): Promise<Cry
   }
 
   try {
-    console.log('Fetching casino listings from WordPress');
+    console.log(`Fetching ${type} listings from WordPress`);
     const response = await fetchWithCache(url, CASINO_CACHE_TIME);
 
-    let casinos: CryptoCasino[] = [];
+    let items: CryptoCasino[] = [];
     if (Array.isArray(response) && response.length > 0) {
-      casinos = response.map(transformCasinoResponse);
+      items = response.map(item => transformListingResponse(item, type));
 
-      // Remove any duplicate Betpanda-like entries and Cryptorino placement will be next handled
-      casinos = casinos.filter(
-        c => c.name.toLowerCase() !== 'betpanda.io' && c.affiliateLink !== betpandaCasino.affiliateLink
+      // Remove any duplicate Betpanda/Cryptorino entries
+      items = items.filter(
+        c => c.name.toLowerCase() !== 'betpanda.io' && 
+             c.name.toLowerCase() !== 'cryptorino.io' && 
+             c.affiliateLink !== betpandaCasino.affiliateLink && 
+             c.affiliateLink !== cryptorinoCasino.affiliateLink
       );
     } else {
-      casinos = getMockCasinoListings();
+      items = getMockListings(type);
     }
 
-    // Insert Betpanda.io at the top
-    return [betpandaCasino, ...insertCryptorinoSecondIfExists(casinos)];
+    // For casinos, insert Betpanda and Cryptorino at the top
+    if (type === 'casinos' || type === 'crypto-casinos') {
+      return [betpandaCasino, cryptorinoCasino, ...items];
+    } 
+    // For other types, just return the items
+    return items;
   } catch (error) {
-    console.error('Error fetching casino listings:', error);
-    let casinos = getMockCasinoListings();
-    // Insert Betpanda.io at the top
-    return [betpandaCasino, ...insertCryptorinoSecondIfExists(casinos)];
+    console.error(`Error fetching ${type} listings:`, error);
+    let items = getMockListings(type);
+    
+    // For casinos, insert Betpanda and Cryptorino at the top
+    if (type === 'casinos' || type === 'crypto-casinos') {
+      return [betpandaCasino, cryptorinoCasino, ...items];
+    }
+    // For other types, just return the items
+    return items;
   }
 };
 
-/**
- * Utility: put "Cryptorino.io" as 2nd, if found in the array
- */
-function insertCryptorinoSecondIfExists(casinos: CryptoCasino[]): CryptoCasino[] {
-  const idx = casinos.findIndex(c => c.name.toLowerCase() === "cryptorino.io" || c.affiliateLink.includes("cryptorino.io"));
-  if (idx === -1) return casinos;
-  // Remove and insert at 2nd position, after Betpanda
-  const [cryptorino] = casinos.splice(idx, 1);
-  return [cryptorino, ...casinos];
-}
-
 export const trackCasinoClick = async (casinoId: number): Promise<void> => {
   try {
-    await fetch(`${WORDPRESS_CASINO_ENDPOINT}/${casinoId}/track-click`, {
+    await fetch(`${WORDPRESS_API_URL}/casinos/${casinoId}/track-click`, {
       method: 'POST',
     });
     console.log(`Tracking click for casino ID: ${casinoId}`);
@@ -101,7 +129,7 @@ export const submitCasinoReview = async (
   isPositive: boolean
 ): Promise<void> => {
   try {
-    await fetch(`${WORDPRESS_CASINO_ENDPOINT}/${casinoId}/review`, {
+    await fetch(`${WORDPRESS_API_URL}/casinos/${casinoId}/review`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -116,21 +144,21 @@ export const submitCasinoReview = async (
   }
 };
 
-const transformCasinoResponse = (wpCasino: any): CryptoCasino => {
+const transformListingResponse = (wpListing: any, type: string): CryptoCasino => {
   let imageUrl = '';
   try {
     if (
-      wpCasino._embedded &&
-      wpCasino._embedded['wp:featuredmedia'] &&
-      wpCasino._embedded['wp:featuredmedia'][0]
+      wpListing._embedded &&
+      wpListing._embedded['wp:featuredmedia'] &&
+      wpListing._embedded['wp:featuredmedia'][0]
     ) {
-      imageUrl = wpCasino._embedded['wp:featuredmedia'][0].source_url;
+      imageUrl = wpListing._embedded['wp:featuredmedia'][0].source_url;
     }
   } catch (error) {
-    console.warn('Error extracting casino logo:', error);
+    console.warn('Error extracting listing logo:', error);
   }
 
-  const currencyCodes = wpCasino.acf?.accepted_currencies || ['BTC'];
+  const currencyCodes = wpListing.acf?.accepted_currencies || ['BTC'];
 
   // Transform currency codes to full objects
   const currencies = currencyCodes.map((code: string) => {
@@ -139,20 +167,20 @@ const transformCasinoResponse = (wpCasino: any): CryptoCasino => {
   });
 
   return {
-    id: wpCasino.id,
-    name: wpCasino.title.rendered,
-    logo: imageUrl || `https://logo.clearbit.com/${wpCasino.slug.replace(/-/g, '')}.com`,
-    rating: wpCasino.acf?.casino_rating || 3,
-    description: wpCasino.excerpt?.rendered || wpCasino.content?.rendered || '',
+    id: wpListing.id,
+    name: wpListing.title.rendered,
+    logo: imageUrl || `https://placehold.co/300x300/1F2937/FFFFFF?text=${encodeURIComponent(wpListing.title.rendered)}`,
+    rating: wpListing.acf?.rating || 3,
+    description: wpListing.excerpt?.rendered || wpListing.content?.rendered || '',
     acceptedCurrencies: currencies,
-    welcomeBonus: wpCasino.acf?.welcome_bonus || 'Welcome Bonus',
-    affiliateLink: wpCasino.acf?.affiliate_link || '#',
-    featured: wpCasino.acf?.is_featured || false,
+    welcomeBonus: wpListing.acf?.welcome_bonus || (type === 'exchanges' ? 'New User Offer' : 'Welcome Bonus'),
+    affiliateLink: wpListing.acf?.affiliate_link || '#',
+    featured: wpListing.acf?.is_featured || false,
     review: {
-      thumbsUp: wpCasino.acf?.thumbs_up || 0,
-      thumbsDown: wpCasino.acf?.thumbs_down || 0
+      thumbsUp: wpListing.acf?.thumbs_up || 0,
+      thumbsDown: wpListing.acf?.thumbs_down || 0
     },
-    rank: wpCasino.acf?.casino_rank
+    rank: wpListing.acf?.rank
   };
 };
 
@@ -171,7 +199,7 @@ const getCryptoCurrencyByCode = (code: string) => {
   return cryptos.find(crypto => crypto.code === code);
 };
 
-const getMockCasinoListings = (): CryptoCasino[] => {
+const getMockListings = (type: string): CryptoCasino[] => {
   const cryptos = [
     { name: 'Bitcoin', code: 'BTC', icon: '₿' },
     { name: 'Ethereum', code: 'ETH', icon: 'Ξ' },
@@ -184,42 +212,40 @@ const getMockCasinoListings = (): CryptoCasino[] => {
     { name: 'Solana', code: 'SOL', icon: 'S' }
   ];
 
-  const casinoNames = [
-    'CryptoRoyal', 'BitVegas', 'EtherPlay', 'CoinWager', 'BlockchainBets',
-    'SatoshiSpins', 'DecentralWin', 'TokenGamble', 'ChainedLuck', 'ByteBets',
-    'MoonStake', 'CryptoJackpot', 'NFTWin', 'WalletWager', 'HashRoll', 'Cryptorino.io'
-  ];
+  const names = type === 'exchanges' 
+    ? ['CoinTrader', 'CryptoSwap', 'BlockExchange', 'TokenTrade', 'ChainMarket', 'BitSwitch', 'CoinFlip']
+    : ['CryptoRoyal', 'BitVegas', 'EtherPlay', 'CoinWager', 'BlockchainBets', 'SatoshiSpins', 'DecentralWin'];
 
-  const bonuses = [
-    'Up to 5 BTC + 200 Free Spins', '100% up to 1 BTC First Deposit',
-    '200% Match + 50 Free Spins', '150% Welcome Bonus up to 2 ETH',
-    'No Deposit Bonus: 50 Free Spins', 'Welcome Package: 300% up to 3 BTC',
-    '100% Deposit Match + Cashback', 'Crypto Starter Pack: 250 Free Spins',
-    'Double Your First Deposit', '400% Welcome Bonus up to 4 BTC'
-  ];
+  const bonuses = type === 'exchanges'
+    ? ['$50 Sign-up Bonus', '0% Trading Fees for 60 Days', '$100 Welcome Bonus', '$25 Deposit Bonus']
+    : ['Up to 5 BTC + 200 Free Spins', '100% up to 1 BTC First Deposit', '200% Match + 50 Free Spins'];
 
-  const descriptions = [
-    'Premier crypto casino offering a wide range of games with instant withdrawals.',
-    'Provably fair gaming platform with over 2000 slots and table games.',
-    'Leading blockchain casino with exclusive bonuses for crypto deposits.',
-    'Secure and anonymous gaming with lightning-fast transactions.',
-    'Innovative crypto gambling platform with unique games and generous rewards.'
-  ];
+  const descriptions = type === 'exchanges'
+    ? [
+        'Leading cryptocurrency exchange with low fees and high liquidity.',
+        'Trade crypto with confidence on this secure and regulated platform.',
+        'Fast and reliable exchange with support for 100+ cryptocurrencies.'
+      ]
+    : [
+        'Premier crypto casino offering a wide range of games with instant withdrawals.',
+        'Provably fair gaming platform with over 2000 slots and table games.',
+        'Leading blockchain casino with exclusive bonuses for crypto deposits.'
+      ];
 
-  return casinoNames.map((name, index) => {
+  return names.map((name, index) => {
     // Choose a random number of cryptocurrencies (3-7)
     const shuffledCryptos = [...cryptos].sort(() => 0.5 - Math.random());
-    const casinoCryptos = shuffledCryptos.slice(0, 3 + Math.floor(Math.random() * 5));
+    const selectedCryptos = shuffledCryptos.slice(0, 3 + Math.floor(Math.random() * 5));
 
     return {
       id: index + 1,
       name,
-      logo: `https://logo.clearbit.com/${name.toLowerCase().replace(/\s+/g, '')}.com`,
+      logo: `https://placehold.co/300x300/1F2937/FFFFFF?text=${encodeURIComponent(name)}`,
       rating: 3 + Math.floor(Math.random() * 3), // 3-5 star rating
       description: descriptions[index % descriptions.length],
-      acceptedCurrencies: casinoCryptos,
+      acceptedCurrencies: selectedCryptos,
       welcomeBonus: bonuses[index % bonuses.length],
-      affiliateLink: name === "Cryptorino.io" ? "https://cryptorino.io/" : `https://example.com/refer/${name.toLowerCase().replace(/\s+/g, '')}`,
+      affiliateLink: `https://example.com/refer/${name.toLowerCase().replace(/\s+/g, '')}`,
       featured: index < 3,
       review: {
         thumbsUp: 50 + Math.floor(Math.random() * 200),

@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import CategoryPosts from "./pages/CategoryPosts";
 import ArticlePage from "./pages/ArticlePage";
 import CryptoCasinos from "./pages/CryptoCasinos";
+import LandingPage from "./pages/LandingPage";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Contact from "./pages/Contact";
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/category/:slug" element={<CategoryPosts />} />
               <Route path="/post/:slug" element={<ArticlePage />} />
               <Route path="/crypto-casinos" element={<CryptoCasinos />} />
+              <Route path="/landing/:slug" element={<LandingPage />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/contact" element={<Contact />} />
