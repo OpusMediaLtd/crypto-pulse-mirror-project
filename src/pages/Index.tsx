@@ -19,6 +19,7 @@ const Index = () => {
     queryFn: async () => {
       console.log('Fetching posts from WordPress');
       try {
+        // Explicitly pass numeric parameters to ensure they are treated as numbers
         const wpPosts = await wordpress.getPosts(1, 9);
         console.log('WordPress posts retrieved:', wpPosts);
         return wpPosts;
@@ -26,7 +27,7 @@ const Index = () => {
         console.error('Error fetching posts:', err);
         toast({
           title: "Could not load content",
-          description: "Please try again later",
+          description: "We're having trouble connecting to our content server. Please try again later.",
           variant: "destructive"
         });
         throw err;

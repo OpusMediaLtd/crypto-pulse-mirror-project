@@ -31,7 +31,7 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
   try {
     // Add a timeout to the fetch request
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
     // Use the CORS proxy for the request
     const proxyUrl = getCorsProxyUrl(url);
@@ -53,6 +53,12 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
       if (response.status === 400) {
         const errorData = await response.json();
         console.error('API error details:', errorData);
+        
+        // Check if this is a per_page parameter issue
+        if (errorData.data?.params?.per_page && errorData.data.params.per_page.includes('not of type integer')) {
+          throw new Error('WordPress API requires numeric parameters - our request format needs fixing');
+        }
+        
         if (errorData.message) {
           throw new Error(`API error: ${errorData.message}`);
         }

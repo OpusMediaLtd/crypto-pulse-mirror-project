@@ -19,7 +19,8 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
   const pageNum = parseInt(String(page), 10);
   const perPageNum = parseInt(String(perPage), 10);
   
-  // Build the URL with proper query parameters
+  // Build the URL with proper query parameters - Force numeric parameters
+  // The API requires these to be actual integers passed directly in the URL
   let url = `${baseUrl}/posts?_embed&page=${pageNum}&per_page=${perPageNum}`;
 
   if (category) {
