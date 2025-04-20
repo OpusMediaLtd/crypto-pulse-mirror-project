@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import Header from './Header';
 import RollingTicker from './RollingTicker';
 import SEOHead from './SEOHead';
 import BannerAd from './BannerAd';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,6 +13,18 @@ interface LayoutProps {
   ogType?: 'website' | 'article';
   canonical?: string;
 }
+
+const LoadingContent = () => (
+  <div className="space-y-8">
+    <Skeleton className="h-8 w-3/4" />
+    <Skeleton className="h-[200px] w-full" />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <Skeleton className="h-[150px]" />
+      <Skeleton className="h-[150px]" />
+      <Skeleton className="h-[150px]" />
+    </div>
+  </div>
+);
 
 const Layout = ({
   children,
@@ -25,10 +38,16 @@ const Layout = ({
     <div className="min-h-screen bg-background text-foreground dark:bg-slate-950 dark:text-white">
       <SEOHead title={title} description={description} ogImage={ogImage} ogType={ogType} canonical={canonical} />
       <Header />
-      <BannerAd />
-      <RollingTicker />
+      <Suspense fallback={null}>
+        <BannerAd />
+      </Suspense>
+      <Suspense fallback={null}>
+        <RollingTicker />
+      </Suspense>
       <main className="container mx-auto px-4 py-8 animate-fade-in">
-        {children}
+        <Suspense fallback={<LoadingContent />}>
+          {children}
+        </Suspense>
       </main>
       <footer className="bg-primary/10 dark:bg-slate-900 text-foreground dark:text-white py-12">
         <div className="container mx-auto px-4">

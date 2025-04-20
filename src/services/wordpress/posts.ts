@@ -1,4 +1,3 @@
-
 /**
  * WordPress API services for posts
  */
@@ -6,11 +5,43 @@ import { WORDPRESS_API_URL } from './config';
 import { WordPressPost, NewsItem } from './types';
 import { getMockPosts } from './mocks';
 
+// Cache durations
+const POSTS_CACHE_TIME = 5 * 60 * 1000; // 5 minutes
+const CATEGORIES_CACHE_TIME = 30 * 60 * 1000; // 30 minutes
+
+// In-memory cache
+const cache: Record<string, { data: any; timestamp: number }> = {};
+
+const fetchWithCache = async (url: string, cacheDuration: number) => {
+  const now = Date.now();
+  const cacheKey = url;
+  
+  // Check cache
+  if (cache[cacheKey] && (now - cache[cacheKey].timestamp) < cacheDuration) {
+    return cache[cacheKey].data;
+  }
+  
+  const response = await fetch(url);
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+  }
+  
+  const data = await response.json();
+  
+  // Update cache
+  cache[cacheKey] = {
+    data,
+    timestamp: now
+  };
+  
+  return data;
+};
+
 /**
  * Fetch posts from WordPress
  */
 export const getPosts = async (page = 1, perPage = 9, category?: number): Promise<WordPressPost[]> => {
-  // If WORDPRESS_API_URL is not configured, return mock data
   if (WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
     const allMockPosts = getMockPosts();
     const startIndex = (page - 1) * perPage;
@@ -30,20 +61,18 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
     url += `&categories=${category}`;
   }
   
-  const response = await fetch(url);
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch posts');
+  try {
+    return await fetchWithCache(url, POSTS_CACHE_TIME);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return getMockPosts().slice(0, perPage);
   }
-  
-  return response.json();
 };
 
 /**
  * Fetch a single post by slug
  */
 export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
-  // If WORDPRESS_API_URL is not configured, return mock data
   if (WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
     const mockPosts = getMockPosts();
     const post = mockPosts.find(p => p.slug === slug);
@@ -51,14 +80,18 @@ export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
     throw new Error('Post not found');
   }
   
-  const response = await fetch(`${WORDPRESS_API_URL}/posts?slug=${slug}&_embed`);
+  const url = `${WORDPRESS_API_URL}/posts?slug=${slug}&_embed`;
   
-  if (!response.ok) {
-    throw new Error('Failed to fetch post');
+  try {
+    const posts = await fetchWithCache(url, POSTS_CACHE_TIME);
+    if (!posts.length) {
+      throw new Error('Post not found');
+    }
+    return posts[0];
+  } catch (error) {
+    console.error('Error fetching post:', error);
+    throw error;
   }
-  
-  const posts = await response.json();
-  return posts[0];
 };
 
 /**
