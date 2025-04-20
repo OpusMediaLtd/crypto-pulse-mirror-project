@@ -1,16 +1,17 @@
 
 import { CryptoCasino, CasinoListFilters } from '@/types/CryptoCasino';
 import wordpress from './wordpress';
+import { WORDPRESS_API_URL } from './wordpress/config';
 
-// Use optional chaining and nullish coalescing for safety
-const WORDPRESS_CASINO_ENDPOINT = `${wordpress.WORDPRESS_API_URL || 'https://yourdomain.com/wp-json/wp/v2'}/crypto-casinos`;
+// Use WORDPRESS_API_URL from the config
+const WORDPRESS_CASINO_ENDPOINT = `${WORDPRESS_API_URL || 'https://yourdomain.com/wp-json/wp/v2'}/crypto-casinos`;
 
 /**
  * Fetch crypto casino listings from WordPress
  */
 export const getCryptoCasinos = async (filters?: CasinoListFilters): Promise<CryptoCasino[]> => {
   // If WordPress API is not configured, return mock data
-  if (!wordpress.WORDPRESS_API_URL || wordpress.WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
+  if (!WORDPRESS_API_URL || WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
     let casinos = getMockCasinoListings();
     
     // Apply filters
@@ -61,7 +62,7 @@ export const getCryptoCasinos = async (filters?: CasinoListFilters): Promise<Cry
  * Record click on casino affiliate link
  */
 export const trackCasinoClick = async (casinoId: number): Promise<void> => {
-  if (!wordpress.WORDPRESS_API_URL || wordpress.WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
+  if (!WORDPRESS_API_URL || WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
     console.log(`Tracking click for casino ID: ${casinoId}`);
     return;
   }
@@ -82,7 +83,7 @@ export const submitCasinoReview = async (
   casinoId: number, 
   isPositive: boolean
 ): Promise<void> => {
-  if (!wordpress.WORDPRESS_API_URL || wordpress.WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
+  if (!WORDPRESS_API_URL || WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
     console.log(`Submitting ${isPositive ? 'positive' : 'negative'} review for casino ID: ${casinoId}`);
     return;
   }
