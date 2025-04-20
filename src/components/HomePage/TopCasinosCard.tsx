@@ -22,9 +22,13 @@ const TopCasinosCard = () => {
               Explore our handpicked selection of the best cryptocurrency gambling platforms, featuring exclusive bonuses and secure gaming options.
             </p>
             <div className="mt-4">
-              <Button asChild>
-                <Link to="/crypto-casinos">
-                  View Full Rankings <ExternalLink className="ml-2 h-4 w-4" />
+              <Button 
+                asChild 
+                className="inline-flex items-center justify-center gap-2"
+              >
+                <Link to="/crypto-casinos" className="flex items-center">
+                  View Full Rankings 
+                  <ExternalLink className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
