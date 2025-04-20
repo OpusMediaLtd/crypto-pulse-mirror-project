@@ -1,60 +1,89 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { TrendingUp, TrendingDown } from 'lucide-react';
-import crypto from '@/services/crypto';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import crypto from '@/services/crypto';
 
 const RollingTicker = () => {
   const { currency } = useCurrency();
+  const [scrollPosition, setScrollPosition] = useState(0);
+  
   const { data: cryptoPrices, isLoading } = useQuery({
-    queryKey: ['crypto-prices-ticker', currency],
+    queryKey: ['ticker-prices', currency],
     queryFn: () => crypto.getPrices([
-      'bitcoin', 'ethereum', 'binancecoin', 'ripple', 'cardano',
-      'solana', 'polkadot', 'dogecoin', 'avalanche-2', 'tron',
-      'chainlink', 'polygon', 'litecoin', 'bitcoin-cash', 'stellar',
-      'monero', 'cosmos', 'ethereum-classic', 'tezos', 'vechain',
-      'theta-token', 'filecoin', 'aave', 'eos', 'maker',
-      'algorand', 'neo', 'uniswap', 'compound-governance-token', 'dash'
+      'bitcoin', 
+      'ethereum', 
+      'binancecoin', 
+      'ripple', 
+      'cardano', 
+      'solana', 
+      'polkadot', 
+      'dogecoin', 
+      'avalanche-2', 
+      'chainlink'
     ], currency),
-    refetchInterval: 30000,
+    refetchInterval: 60000, // Refresh every minute
   });
 
-  if (isLoading) {
-    return (
-      <div className="bg-primary/5 border-b py-2 overflow-hidden">
-        <div className="animate-pulse flex gap-8">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div className="w-20 h-4 bg-gray-200 rounded" />
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setScrollPosition(prev => prev + 1);
+    }, 50);
+    
+    return () => clearInterval(interval);
+  }, []);
 
-  // Duplicate the array to create a seamless infinite scroll effect
-  const duplicatedPrices = [...(cryptoPrices || []), ...(cryptoPrices || [])];
+  // Fallback data for loading state
+  const fallbackData = [
+    { symbol: 'BTC', name: 'Bitcoin', current_price: 0, price_change_percentage_24h: 0 },
+    { symbol: 'ETH', name: 'Ethereum', current_price: 0, price_change_percentage_24h: 0 },
+    { symbol: 'BNB', name: 'BNB', current_price: 0, price_change_percentage_24h: 0 },
+    { symbol: 'XRP', name: 'XRP', current_price: 0, price_change_percentage_24h: 0 },
+    { symbol: 'ADA', name: 'Cardano', current_price: 0, price_change_percentage_24h: 0 },
+    { symbol: 'SOL', name: 'Solana', current_price: 0, price_change_percentage_24h: 0 },
+  ];
 
-  const currencySymbol = currency === 'usd' ? '$' : '€';
+  const displayData = cryptoPrices || fallbackData;
+  const duplicatedData = [...displayData, ...displayData]; // Duplicate for seamless scrolling
 
   return (
-    <div className="bg-primary/5 border-b py-2 overflow-hidden">
-      <div className="animate-[slide_60s_linear_infinite] flex gap-8 whitespace-nowrap">
-        {duplicatedPrices.map((crypto, index) => (
-          <div key={`${crypto.id}-${index}`} className="flex items-center gap-2">
-            <span className="font-medium">{crypto.symbol.toUpperCase()}</span>
-            <span>{currencySymbol}{crypto.current_price.toLocaleString()}</span>
-            <span className={`flex items-center ${
-              crypto.price_change_percentage_24h > 0 ? 'text-green-500' : 'text-red-500'
-            }`}>
-              {crypto.price_change_percentage_24h > 0 ? (
-                <TrendingUp className="h-4 w-4 mr-1" />
+    <div className="bg-gray-900 text-white py-2 overflow-hidden">
+      <div 
+        className="flex whitespace-nowrap"
+        style={{ 
+          transform: `translateX(-${scrollPosition}px)`,
+        }}
+      >
+        {duplicatedData.map((coin, index) => (
+          <div key={`${coin.symbol}-${index}`} className="inline-flex items-center mx-4">
+            <span className="font-medium">{coin.symbol.toUpperCase()}</span>
+            <span className="mx-2">
+              {isLoading ? (
+                <span className="bg-gray-700 animate-pulse rounded h-4 w-16 inline-block"></span>
               ) : (
-                <TrendingDown className="h-4 w-4 mr-1" />
+                <>
+                  {currency === 'usd' ? '$' : '€'}
+                  {coin.current_price.toLocaleString()}
+                </>
               )}
-              {crypto.price_change_percentage_24h.toFixed(2)}%
+            </span>
+            <span 
+              className={`text-xs ${
+                coin.price_change_percentage_24h > 0 
+                  ? 'text-green-400' 
+                  : coin.price_change_percentage_24h < 0 
+                    ? 'text-red-400' 
+                    : 'text-gray-400'
+              }`}
+            >
+              {isLoading ? (
+                <span className="bg-gray-700 animate-pulse rounded h-3 w-10 inline-block"></span>
+              ) : (
+                <>
+                  {coin.price_change_percentage_24h > 0 ? '+' : ''}
+                  {coin.price_change_percentage_24h.toFixed(2)}%
+                </>
+              )}
             </span>
           </div>
         ))}

@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import PostDetail from "./pages/PostDetail";
 import CategoryPosts from "./pages/CategoryPosts";
+import ArticlePage from "./pages/ArticlePage";
 
 const queryClient = new QueryClient();
 
@@ -24,7 +25,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/category/:slug" element={<CategoryPosts />} />
-              <Route path="/post/:slug" element={<PostDetail />} />
+              <Route path="/post/:slug" element={<ArticlePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
