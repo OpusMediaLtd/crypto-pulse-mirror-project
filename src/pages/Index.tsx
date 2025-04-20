@@ -1,19 +1,11 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import wordpress from '@/services/wordpress';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import StatsSection from '@/components/StatsSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
-import RecentArticles from '@/components/RecentArticles';
-import FeaturedStories from '@/components/FeaturedStories';
-import DeepDives from '@/components/DeepDives';
-import AdSpace from '@/components/AdSpace';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Bitcoin, ExternalLink, Trophy } from 'lucide-react';
-import CasinoList from '@/components/CasinoList/CasinoList';
+import MainContentGrid from '@/components/HomePage/MainContentGrid';
 
 const Index = () => {
   const { currency } = useCurrency();
@@ -145,56 +137,11 @@ const Index = () => {
 
   return (
     <Layout>
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <div className="md:col-span-3">
-          <RecentArticles articles={recentArticles} />
-          <div className="mt-6">
-            <AdSpace variant="sidebar" message="Premium Trading Tools - Special Offer" />
-          </div>
-        </div>
-
-        <div className="md:col-span-6">
-          <FeaturedStories stories={featuredStories} />
-          
-          <div className="my-8">
-            <Card className="overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-primary/20 to-primary/5">
-                <div className="flex items-center">
-                  <Trophy className="h-8 w-8 text-primary mr-3" />
-                  <CardTitle>Top Crypto Casinos 2025</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="mb-4">
-                  <p className="text-muted-foreground">
-                    Explore our handpicked selection of the best cryptocurrency gambling platforms, featuring exclusive bonuses and secure gaming options.
-                  </p>
-                  <div className="mt-4">
-                    <Button asChild>
-                      <Link to="/crypto-casinos">
-                        View Full Rankings <ExternalLink className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-                <CasinoList limit={3} />
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="mt-8">
-            <AdSpace variant="banner" message="Get Started with Crypto Trading - 30% Discount" />
-          </div>
-        </div>
-
-        <div className="md:col-span-3">
-          <DeepDives articles={deepDives} />
-          <div className="mt-6">
-            <AdSpace variant="sidebar" message="Crypto Market Analysis Tools" />
-          </div>
-        </div>
-      </div>
-
+      <MainContentGrid 
+        recentArticles={recentArticles}
+        featuredStories={featuredStories}
+        deepDives={deepDives}
+      />
       <div className="mt-12">
         <StatsSection />
       </div>
