@@ -30,18 +30,6 @@ const Index = () => {
     staleTime: 1 * 60 * 1000, // Consider posts fresh for 1 minute
     retry: 2, // Retry twice
     retryDelay: 1000, // 1 second between retries
-    meta: {
-      onSettled: (data, error) => {
-        if (error) {
-          toast({
-            title: "Could not load content from server",
-            description: "We're having trouble connecting to our content server. Using cached content.",
-            variant: "destructive"
-          });
-          console.error('Error fetching posts:', error);
-        }
-      }
-    }
   });
 
   // Convert WordPress posts to the format expected by components
@@ -57,7 +45,7 @@ const Index = () => {
   const handleRefresh = () => {
     toast({
       title: "Refreshing content",
-      description: "Trying to fetch fresh content from the server..."
+      description: "Fetching fresh content from the server..."
     });
     refetch();
   };
@@ -99,7 +87,7 @@ const Index = () => {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Content Connection Issue</AlertTitle>
           <AlertDescription>
-            We're having trouble connecting to our content server. 
+            We're having trouble connecting to our content server. Please check your WordPress API settings.
             <div className="mt-4">
               <Button onClick={handleRefresh} variant="outline" size="sm">
                 <RefreshCw className="mr-2 h-4 w-4" /> Try Again
@@ -109,11 +97,35 @@ const Index = () => {
         </Alert>
       )}
       
-      <MainContentGrid 
-        recentArticles={recentArticles}
-        featuredStories={featuredStories}
-        deepDives={deepDives}
-      />
+      {!error && postsLoading && (
+        <div className="max-w-2xl mx-auto text-center py-12">
+          <p>Loading content...</p>
+        </div>
+      )}
+      
+      {!error && !postsLoading && displayedPosts.length === 0 && (
+        <Alert className="max-w-2xl mx-auto mb-8 mt-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>No Content Available</AlertTitle>
+          <AlertDescription>
+            No posts were found. Please check your WordPress API configuration or try again later.
+            <div className="mt-4">
+              <Button onClick={handleRefresh} variant="outline" size="sm">
+                <RefreshCw className="mr-2 h-4 w-4" /> Try Again
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {(!error && displayedPosts.length > 0) && (
+        <MainContentGrid 
+          recentArticles={recentArticles}
+          featuredStories={featuredStories}
+          deepDives={deepDives}
+        />
+      )}
+      
       <div className="mt-12">
         <StatsSection />
       </div>

@@ -3,7 +3,6 @@ import { getDirectApiUrl } from './config';
 import { WordPressPost } from './types';
 import { fetchWithCache } from './utils';
 import { convertPostToNewsItem } from './convert';
-import { getMockPosts } from './mocks';
 
 // Cache durations
 const POSTS_CACHE_TIME = 5 * 60 * 1000; // 5 minutes
@@ -28,41 +27,23 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
     url += `&categories=${categoryNum}`;
   }
 
-  try {
-    console.log('Attempting to fetch posts from:', url);
-    const posts = await fetchWithCache(url, POSTS_CACHE_TIME);
-    console.log('WordPress posts retrieved:', posts.length);
-
-    if (Array.isArray(posts) && posts.length > 0) {
-      return posts;
-    } else {
-      console.warn('API returned empty or invalid posts array');
-      throw new Error('No posts found in API response');
-    }
-  } catch (error) {
-    console.error('Error fetching posts:', error);
-    throw error; // Let the component handle the error (fallback to mock data)
-  }
+  console.log('Attempting to fetch posts from:', url);
+  return await fetchWithCache(url, POSTS_CACHE_TIME);
 };
 
 /**
  * Fetch a single post by slug
  */
 export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
-  try {
-    const baseUrl = getDirectApiUrl();
-    const url = `${baseUrl}/posts?slug=${slug}&_embed`;
-    const posts = await fetchWithCache(url, POSTS_CACHE_TIME);
-    
-    if (Array.isArray(posts) && posts.length > 0) {
-      return posts[0];
-    }
-    
-    throw new Error(`Post with slug "${slug}" not found`);
-  } catch (error) {
-    console.error('Error fetching post by slug:', error);
-    throw error; // Let the component handle the error
+  const baseUrl = getDirectApiUrl();
+  const url = `${baseUrl}/posts?slug=${slug}&_embed`;
+  const posts = await fetchWithCache(url, POSTS_CACHE_TIME);
+  
+  if (Array.isArray(posts) && posts.length > 0) {
+    return posts[0];
   }
+  
+  throw new Error(`Post with slug "${slug}" not found`);
 };
 
 export { convertPostToNewsItem };

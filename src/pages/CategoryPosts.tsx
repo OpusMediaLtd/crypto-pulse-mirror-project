@@ -10,7 +10,6 @@ import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { getMockPosts } from '@/services/wordpress/mocks';
 
 const CategoryPosts = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -70,24 +69,10 @@ const CategoryPosts = () => {
   } = useQuery({
     queryKey: ['posts', 'category', slug, category?.id],
     queryFn: async () => {
-      try {
-        if (!category?.id && categories?.length > 0) {
-          throw new Error(`Category "${slug}" not found`);
-        }
-        return await wordpress.getPosts(1, 12, category?.id);
-      } catch (error) {
-        console.error('Error fetching category posts:', error);
-        // If the real API fails, use mock data
-        const mockPosts = getMockPosts();
-        const filteredPosts = mockPosts.filter(post => {
-          if (category?.id) {
-            return post.categories.includes(category.id);
-          }
-          // If no category ID (yet), filter by slug if possible
-          return post.slug.includes(slug || '');
-        });
-        return filteredPosts;
+      if (!category?.id && categories?.length > 0) {
+        throw new Error(`Category "${slug}" not found`);
       }
+      return await wordpress.getPosts(1, 12, category?.id);
     },
     enabled: !!slug || categories?.length > 0,
     staleTime: 2 * 60 * 1000, // Consider posts fresh for 2 minutes
@@ -101,7 +86,7 @@ const CategoryPosts = () => {
       console.error('Error loading category posts:', postsError);
       toast({
         title: "Error loading posts",
-        description: `There was a problem loading posts for "${slug}". Trying alternative sources.`,
+        description: `There was a problem loading posts for "${slug}". Please check API configuration.`,
         variant: "destructive"
       });
     }
@@ -175,7 +160,7 @@ const CategoryPosts = () => {
             <AlertDescription>
               There's a problem connecting to the WordPress API: {apiTestStatus.message}
               <div className="mt-2">
-                <p className="text-sm">Try setting the VITE_WORDPRESS_API environment variable to your WordPress API URL.</p>
+                <p className="text-sm">Make sure to set the VITE_WORDPRESS_API environment variable to your WordPress API URL.</p>
               </div>
             </AlertDescription>
           </Alert>
@@ -191,20 +176,11 @@ const CategoryPosts = () => {
               </div>
             ))}
           </div>
-        ) : posts && posts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => {
-              const newsItem = wordpress.convertPostToNewsItem(post);
-              return <NewsCard key={post.id} {...newsItem} />;
-            })}
-          </div>
-        ) : (
+        ) : postsError ? (
           <div className="text-center py-12 border rounded-lg bg-gray-50">
-            <h3 className="text-xl font-medium mb-2">No articles found</h3>
+            <h3 className="text-xl font-medium mb-2">API Connection Error</h3>
             <p className="text-gray-500 mb-6">
-              {postsError 
-                ? "There was an error loading articles. You can try refreshing or check API settings."
-                : `There are currently no articles in the "${slug}" category. Please check back later.`}
+              There was an error connecting to the WordPress API. Please check your API configuration.
             </p>
             
             <Button onClick={handleRefresh} className="mb-4">
@@ -212,8 +188,8 @@ const CategoryPosts = () => {
             </Button>
             
             <div className="mt-4 mx-auto max-w-md">
-              <details className="text-left text-xs" open>
-                <summary className="cursor-pointer text-gray-500">Debug information</summary>
+              <details className="text-left text-xs">
+                <summary className="cursor-pointer text-gray-500">Technical details</summary>
                 <pre className="mt-2 bg-gray-100 p-4 rounded-lg overflow-auto max-h-40 text-xs whitespace-pre-wrap">
                   {JSON.stringify({ 
                     slug, 
@@ -225,6 +201,24 @@ const CategoryPosts = () => {
                 </pre>
               </details>
             </div>
+          </div>
+        ) : posts && posts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {posts.map((post) => {
+              const newsItem = wordpress.convertPostToNewsItem(post);
+              return <NewsCard key={post.id} {...newsItem} />;
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-12 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-medium mb-2">No Articles Found</h3>
+            <p className="text-gray-500 mb-6">
+              There are currently no articles in the "{slug}" category.
+            </p>
+            
+            <Button onClick={handleRefresh} className="mb-4">
+              <RefreshCw className="mr-2 h-4 w-4" /> Try Again
+            </Button>
           </div>
         )}
       </section>
