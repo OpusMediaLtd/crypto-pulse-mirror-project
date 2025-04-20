@@ -101,6 +101,20 @@ export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
  * Convert WordPress post to NewsCard format
  */
 export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
+  if (!post || !post.title || !post.excerpt) {
+    console.warn('Invalid post object:', post);
+    return {
+      id: 0,
+      title: 'Unavailable',
+      description: 'Content unavailable',
+      image: 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format',
+      category: 'News',
+      time: new Date().toLocaleString(),
+      slug: 'unavailable',
+      author: 'Unknown'
+    };
+  }
+
   // Default fallback image if nothing is available
   const fallbackImage = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
   
@@ -142,12 +156,13 @@ export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
   }
   
   return {
+    id: post.id,
     title: post.title.rendered,
     description: post.excerpt.rendered.replace(/<\/?[^>]+(>|$)/g, ""), // Strip HTML
     image: featuredMediaUrl,
     category: 'News', // You would map this based on actual categories
     time: new Date(post.date).toLocaleString(),
     slug: post.slug,
-    id: post.id
+    author: 'CryptoPulse Staff' // Default author if not available
   };
 };

@@ -34,8 +34,15 @@ const Index = () => {
 
   const displayedPosts = latestPosts || [];
   const recentArticles = convertWordPressPosts(displayedPosts);
-  const featuredStories = convertWordPressPosts(displayedPosts.slice(0, 4));
-  const deepDives = convertWordPressPosts(displayedPosts.slice(4));
+  
+  // Make sure we have enough items for featured and deep dives
+  const featuredStories = convertWordPressPosts(displayedPosts.slice(0, 3));
+  const deepDivesPosts = displayedPosts.slice(3, 5);
+  
+  // Ensure deep dives has valid items before converting
+  const deepDives = deepDivesPosts.length > 0 
+    ? convertWordPressPosts(deepDivesPosts) 
+    : [];
 
   return (
     <Layout>
