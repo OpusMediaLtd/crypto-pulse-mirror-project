@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -80,6 +81,7 @@ const Header = () => {
             <Link to="/category/defi" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">DeFi</Link>
             <Link to="/category/nfts" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">NFTs</Link>
             <Link to="/category/markets" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Markets</Link>
+            <Link to="/crypto-casinos" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Crypto Casinos</Link>
             <Button variant="outline" size="sm" className="hover-scale" onClick={() => setShowSubscribe(true)}>
               Subscribe
             </Button>
@@ -108,3 +110,4 @@ const Header = () => {
 };
 
 export default Header;
+
