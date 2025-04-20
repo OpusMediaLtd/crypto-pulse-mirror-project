@@ -1,4 +1,5 @@
-import { getDirectApiUrl } from './config';
+
+import { WORDPRESS_API_URL, getDirectApiUrl } from './config';
 import { WordPressPost, NewsItem } from './types';
 import { getMockPosts } from './mocks';
 
