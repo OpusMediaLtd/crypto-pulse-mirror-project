@@ -59,11 +59,50 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
     }
     
     console.log('Direct request failed with status:', directResponse.status);
+    console.log('Response text:', await directResponse.text().catch(() => 'Unable to get response text'));
   } catch (directError) {
     console.log('Direct request failed:', directError);
   }
   
-  // Try with CORS proxy as fallback
+  // If the direct request failed and it's using the index.php?rest_route format,
+  // try an alternative format that might work better with some configurations
+  if (url.includes('index.php?rest_route=')) {
+    try {
+      // Try with wp-json format instead
+      const wpJsonUrl = url.replace('/index.php?rest_route=/wp/v2', '/wp-json/wp/v2');
+      console.log('Trying alternative wp-json format:', wpJsonUrl);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
+      const alternativeResponse = await fetch(wpJsonUrl, {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (alternativeResponse.ok) {
+        const data = await alternativeResponse.json();
+        console.log('Alternative wp-json format worked successfully');
+        
+        // Update cache
+        cache[cacheKey] = {
+          data,
+          timestamp: now
+        };
+        
+        return data;
+      }
+    } catch (alternativeError) {
+      console.log('Alternative format request failed:', alternativeError);
+    }
+  }
+  
+  // Try with CORS proxy as a last resort
   try {
     console.log('Falling back to CORS proxy...');
     const proxyUrl = getCorsProxyUrl(url);
