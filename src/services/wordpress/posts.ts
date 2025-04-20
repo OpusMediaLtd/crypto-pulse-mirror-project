@@ -1,6 +1,5 @@
-
-import { WORDPRESS_API_URL, DEFAULT_WP_API_URL } from './config';
-import { WordPressPost, NewsItem } from './types';
+import { WORDPRESS_API_URL } from './config';
+import { WordPressPost } from './types';
 import { getMockPosts } from './mocks';
 
 // Cache durations
@@ -56,13 +55,13 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
     if (Array.isArray(posts) && posts.length > 0) {
       return posts;
     } else {
-      console.warn('API returned empty or invalid posts array, using mock data');
-      return getMockPosts().slice(0, perPage);
+      console.warn('API returned empty or invalid posts array');
+      return [];
     }
   } catch (error) {
     console.error('Error fetching posts:', error);
-    // Only use mock data as a last resort
-    return getMockPosts().slice(0, perPage);
+    // Return an empty array instead of mock posts
+    return [];
   }
 };
 
