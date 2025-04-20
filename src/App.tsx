@@ -8,11 +8,13 @@ import { HelmetProvider } from 'react-helmet-async';
 import { CurrencyProvider } from "./contexts/CurrencyContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import PostDetail from "./pages/PostDetail";
 import CategoryPosts from "./pages/CategoryPosts";
 import ArticlePage from "./pages/ArticlePage";
 import CryptoCasinos from "./pages/CryptoCasinos";
 import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Contact from "./pages/Contact";
+import About from "./pages/About";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +32,9 @@ const App = () => (
               <Route path="/post/:slug" element={<ArticlePage />} />
               <Route path="/crypto-casinos" element={<CryptoCasinos />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/about" element={<About />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
