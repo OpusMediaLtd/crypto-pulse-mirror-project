@@ -15,10 +15,16 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
   const baseUrl = getDirectApiUrl();
 
   // Construct the URL with the correct format based on the screenshots
-  let url = `${baseUrl}/posts?_embed&page=${page}&per_page=${perPage}`;
+  // Ensure parameters are numbers by using parseInt
+  const pageNum = parseInt(String(page), 10);
+  const perPageNum = parseInt(String(perPage), 10);
+  
+  // Build the URL with proper query parameters
+  let url = `${baseUrl}/posts?_embed&page=${pageNum}&per_page=${perPageNum}`;
 
   if (category) {
-    url += `&categories=${category}`;
+    const categoryNum = parseInt(String(category), 10);
+    url += `&categories=${categoryNum}`;
   }
 
   try {

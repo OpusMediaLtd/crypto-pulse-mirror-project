@@ -8,6 +8,8 @@ import NewsletterSignup from '@/components/NewsletterSignup';
 import MainContentGrid from '@/components/HomePage/MainContentGrid';
 import wordpress from '@/services/wordpress';
 import { toast } from '@/components/ui/use-toast';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const Index = () => {
   const { currency } = useCurrency();
@@ -51,7 +53,13 @@ const Index = () => {
     return (
       <Layout>
         <div className="mt-12 text-center">
-          <p className="text-lg text-red-500 mb-8">Unable to load content. Please try again later.</p>
+          <Alert variant="destructive" className="max-w-2xl mx-auto mb-8">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Unable to load content</AlertTitle>
+            <AlertDescription>
+              We're having trouble connecting to our content server. Please try again later.
+            </AlertDescription>
+          </Alert>
           <StatsSection />
         </div>
         <div className="mt-12">

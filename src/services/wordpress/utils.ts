@@ -10,7 +10,7 @@ const cache: Record<string, { data: any; timestamp: number }> = {};
  * Function to get a CORS-friendly URL
  */
 export const getCorsProxyUrl = (url: string): string => {
-  // Use CORS Anywhere as a proxy
+  // Use corsproxy.io as a proxy
   return `https://corsproxy.io/?${encodeURIComponent(url)}`;
 };
 
@@ -48,6 +48,16 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
 
     if (!response.ok) {
       console.error(`Failed to fetch from ${url}: Status ${response.status} ${response.statusText}`);
+      
+      // Special handling for 400 errors with JSON response
+      if (response.status === 400) {
+        const errorData = await response.json();
+        console.error('API error details:', errorData);
+        if (errorData.message) {
+          throw new Error(`API error: ${errorData.message}`);
+        }
+      }
+      
       throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
     }
 
