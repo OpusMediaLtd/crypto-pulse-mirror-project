@@ -14,16 +14,10 @@ export const getDirectApiUrl = () => {
   return WORDPRESS_API_URL;
 };
 
-// Custom post types API endpoints
-export const WORDPRESS_CASINO_ENDPOINT = `${getDirectApiUrl()}/crypto-casinos`;
-export const WORDPRESS_BANNER_ADS_ENDPOINT = `${getDirectApiUrl()}/banner-ads`;
-
 // Log the API URL being used
 console.log('WordPress API URL configured as:', WORDPRESS_API_URL);
 console.log('Direct API URL format:', getDirectApiUrl());
 
 export default {
-  WORDPRESS_API_URL: getDirectApiUrl(),
-  WORDPRESS_CASINO_ENDPOINT,
-  WORDPRESS_BANNER_ADS_ENDPOINT
+  WORDPRESS_API_URL: getDirectApiUrl()
 };
