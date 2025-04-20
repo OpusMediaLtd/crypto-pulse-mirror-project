@@ -7,6 +7,14 @@
 const cache: Record<string, { data: any; timestamp: number }> = {};
 
 /**
+ * Function to get a CORS-friendly URL
+ */
+export const getCorsProxyUrl = (url: string): string => {
+  // Use CORS Anywhere as a proxy
+  return `https://corsproxy.io/?${encodeURIComponent(url)}`;
+};
+
+/**
  * Fetch with simple in-memory cache and timeout
  */
 export const fetchWithCache = async (url: string, cacheDuration: number) => {
@@ -25,7 +33,11 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-    const response = await fetch(url, { 
+    // Use the CORS proxy for the request
+    const proxyUrl = getCorsProxyUrl(url);
+    console.log('Using CORS proxy URL:', proxyUrl);
+
+    const response = await fetch(proxyUrl, { 
       signal: controller.signal,
       headers: {
         'Accept': 'application/json',
@@ -60,8 +72,7 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
 
     // If it's a CORS error, suggest solutions in the console
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      console.error('This may be a CORS issue. Ensure your WordPress site has CORS headers configured properly.');
-      console.error('For WordPress, you can use a plugin like "WP CORS" or add headers in your .htaccess file.');
+      console.error('This may be a CORS issue. Using CORS proxy but still failed.');
     }
 
     throw error; // Re-throw to handle it in the calling function

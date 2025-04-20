@@ -16,9 +16,19 @@ const Index = () => {
     queryKey: ['posts'],
     queryFn: async () => {
       console.log('Fetching posts from WordPress');
-      const wpPosts = await wordpress.getPosts(1, 9);
-      console.log('WordPress posts retrieved:', wpPosts);
-      return wpPosts;
+      try {
+        const wpPosts = await wordpress.getPosts(1, 9);
+        console.log('WordPress posts retrieved:', wpPosts);
+        return wpPosts;
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+        toast({
+          title: "Could not load content",
+          description: "Please try again later",
+          variant: "destructive"
+        });
+        throw err;
+      }
     },
     staleTime: 2 * 60 * 1000, // Consider posts fresh for 2 minutes
     retry: 2, // Only retry twice
@@ -37,21 +47,11 @@ const Index = () => {
 
   // If there's an error or no posts, don't display anything
   if (error || !posts || posts.length === 0) {
-    React.useEffect(() => {
-      if (error) {
-        console.error('Error fetching posts:', error);
-        toast({
-          title: "Could not load content",
-          description: "Please try again later",
-          variant: "destructive"
-        });
-      }
-    }, [error]);
-
     // Return minimal layout with no content
     return (
       <Layout>
-        <div className="mt-12">
+        <div className="mt-12 text-center">
+          <p className="text-lg text-red-500 mb-8">Unable to load content. Please try again later.</p>
           <StatsSection />
         </div>
         <div className="mt-12">
