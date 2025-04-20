@@ -94,61 +94,19 @@ export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
  * Convert WordPress post to NewsCard format
  */
 export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
-  console.log('Converting post to news item:', post);
+  console.log("Converting post to news item:", post);
 
-  if (!post || !post.title || !post.excerpt) {
-    console.warn('Invalid post object:', post);
-    return createFallbackNewsItem();
-  }
-
-  // Default fallback image
-  const fallbackImage = 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format';
-  
-  // Safely extract featured media URL
-  let featuredMediaUrl = fallbackImage;
-  try {
-    if (post._embedded && 
-        post._embedded['wp:featuredmedia'] && 
-        post._embedded['wp:featuredmedia'][0] && 
-        post._embedded['wp:featuredmedia'][0].source_url) {
-      const mediaUrl = post._embedded['wp:featuredmedia'][0].source_url;
-      
-      if (mediaUrl && typeof mediaUrl === 'string' && mediaUrl.startsWith('http')) {
-        featuredMediaUrl = mediaUrl;
-      }
-    } else {
-      console.warn('No featured media found for post:', post.id);
-    }
-  } catch (error) {
-    console.warn('Error extracting featured media:', error);
-  }
-  
-  // Extract category name if available
-  let categoryName = 'News';
-  try {
-    if (post._embedded && 
-        post._embedded['wp:term'] && 
-        post._embedded['wp:term'][0] && 
-        post._embedded['wp:term'][0][0]) {
-      categoryName = post._embedded['wp:term'][0][0].name || 'News';
-    }
-  } catch (error) {
-    console.warn('Error extracting category:', error);
-  }
-
-  const newsItem = {
+  // Skip field checks! Always just return the basic structure you provided:
+  return {
     id: post.id,
     title: post.title.rendered,
-    description: stripHtmlTags(post.excerpt.rendered),
-    image: featuredMediaUrl,
-    category: categoryName,
-    time: formatPostDate(post.date),
+    description: post.excerpt.rendered,
+    image: '', // skip for now
+    category: 'News',
+    time: post.date,
     slug: post.slug,
-    author: extractAuthor(post)
+    author: 'Author'
   };
-
-  console.log('Converted news item:', newsItem);
-  return newsItem;
 };
 
 // Helper function to strip HTML tags
