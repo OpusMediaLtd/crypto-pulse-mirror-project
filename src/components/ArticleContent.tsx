@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
 import { ChevronRight } from 'lucide-react';
+import AdSpace from './AdSpace';
 
 export interface ArticleContentProps {
   title: string;
@@ -53,7 +53,13 @@ const ArticleContent = ({
         )}
       </div>
       
-      <div className="prose max-w-none mb-12" dangerouslySetInnerHTML={{ __html: content }} />
+      <div className="prose max-w-none mb-12">
+        <div dangerouslySetInnerHTML={{ __html: content.slice(0, content.length / 2) }} />
+        <AdSpace variant="article-inline" message="Discover Premium Crypto Analysis Tools" />
+        <div dangerouslySetInnerHTML={{ __html: content.slice(content.length / 2) }} />
+      </div>
+      
+      <AdSpace variant="banner" message="Join Our Premium Trading Community" />
       
       {relatedArticles.length > 0 && (
         <div className="mt-12">

@@ -8,6 +8,7 @@ import NewsletterSignup from '@/components/NewsletterSignup';
 import RecentArticles from '@/components/RecentArticles';
 import FeaturedStories from '@/components/FeaturedStories';
 import DeepDives from '@/components/DeepDives';
+import AdSpace from '@/components/AdSpace';
 
 const Index = () => {
   const { currency } = useCurrency();
@@ -22,7 +23,6 @@ const Index = () => {
     queryFn: () => wordpress.getCategories()
   });
 
-  // Mock data for recent articles (left sidebar)
   const recentArticles = [
     {
       id: 1,
@@ -61,7 +61,6 @@ const Index = () => {
     }
   ];
 
-  // Mock data for featured stories (middle)
   const featuredStories = [
     {
       id: 1,
@@ -100,7 +99,6 @@ const Index = () => {
     }
   ];
 
-  // Mock data for deep dives (right sidebar)
   const deepDives = [
     {
       id: 1,
@@ -143,19 +141,25 @@ const Index = () => {
   return (
     <Layout>
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        {/* Recent Articles (Left Sidebar) */}
         <div className="md:col-span-3">
           <RecentArticles articles={recentArticles} />
+          <div className="mt-6">
+            <AdSpace variant="sidebar" message="Premium Trading Tools - Special Offer" />
+          </div>
         </div>
 
-        {/* Featured Stories (Middle) */}
         <div className="md:col-span-6">
           <FeaturedStories stories={featuredStories} />
+          <div className="my-8">
+            <AdSpace variant="banner" message="Get Started with Crypto Trading - 30% Discount" />
+          </div>
         </div>
 
-        {/* Deep Dives (Right Sidebar) */}
         <div className="md:col-span-3">
           <DeepDives articles={deepDives} />
+          <div className="mt-6">
+            <AdSpace variant="sidebar" message="Crypto Market Analysis Tools" />
+          </div>
         </div>
       </div>
 
