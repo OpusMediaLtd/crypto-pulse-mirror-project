@@ -31,12 +31,15 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
   try {
     // Add a timeout to the fetch request
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
 
     // Use the CORS proxy for the request
     const proxyUrl = getCorsProxyUrl(url);
     console.log('Using CORS proxy URL:', proxyUrl);
 
+    // Add debugging information to see exact URL being requested
+    console.log('Full request URL (decoded):', decodeURIComponent(proxyUrl));
+    
     const response = await fetch(proxyUrl, { 
       signal: controller.signal,
       headers: {
@@ -54,9 +57,18 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
         const errorData = await response.json();
         console.error('API error details:', errorData);
         
-        // Check if this is a per_page parameter issue
-        if (errorData.data?.params?.per_page && errorData.data.params.per_page.includes('not of type integer')) {
-          throw new Error('WordPress API requires numeric parameters - our request format needs fixing');
+        // Detailed error handling for parameter issues
+        if (errorData.data?.params) {
+          console.error('Parameter errors:', errorData.data.params);
+          
+          // Check for specific parameter type issues
+          Object.entries(errorData.data.params).forEach(([param, error]) => {
+            console.error(`Parameter error with ${param}:`, error);
+          });
+          
+          if (errorData.data.params.per_page) {
+            throw new Error(`WordPress API parameter error: ${errorData.data.params.per_page}`);
+          }
         }
         
         if (errorData.message) {
@@ -68,7 +80,7 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
     }
 
     const data = await response.json();
-    console.log('WordPress API Response:', data);
+    console.log('WordPress API Response received successfully');
 
     // Update cache
     cache[cacheKey] = {

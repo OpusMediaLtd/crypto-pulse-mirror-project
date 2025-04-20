@@ -9,17 +9,23 @@ import MainContentGrid from '@/components/HomePage/MainContentGrid';
 import wordpress from '@/services/wordpress';
 import { toast } from '@/components/ui/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const { currency } = useCurrency();
   
-  const { data: posts, isLoading: postsLoading, error } = useQuery({
+  const { 
+    data: posts, 
+    isLoading: postsLoading, 
+    error,
+    refetch 
+  } = useQuery({
     queryKey: ['posts'],
     queryFn: async () => {
       console.log('Fetching posts from WordPress');
       try {
-        // Explicitly pass numeric parameters to ensure they are treated as numbers
+        // Use explicit numeric values to ensure proper parameter type
         const wpPosts = await wordpress.getPosts(1, 9);
         console.log('WordPress posts retrieved:', wpPosts);
         return wpPosts;
@@ -33,8 +39,8 @@ const Index = () => {
         throw err;
       }
     },
-    staleTime: 2 * 60 * 1000, // Consider posts fresh for 2 minutes
-    retry: 2, // Only retry twice
+    staleTime: 1 * 60 * 1000, // Consider posts fresh for 1 minute
+    retry: 1, // Only retry once
     retryDelay: 1000, // 1 second between retries
   });
 
@@ -48,6 +54,14 @@ const Index = () => {
     return newsItems;
   };
 
+  const handleRefresh = () => {
+    toast({
+      title: "Refreshing content",
+      description: "Trying to fetch fresh content from the server..."
+    });
+    refetch();
+  };
+
   // If there's an error or no posts, don't display anything
   if (error || !posts || posts.length === 0) {
     // Return minimal layout with no content
@@ -59,6 +73,11 @@ const Index = () => {
             <AlertTitle>Unable to load content</AlertTitle>
             <AlertDescription>
               We're having trouble connecting to our content server. Please try again later.
+              <div className="mt-4">
+                <Button onClick={handleRefresh} variant="outline" size="sm">
+                  <RefreshCw className="mr-2 h-4 w-4" /> Try Again
+                </Button>
+              </div>
             </AlertDescription>
           </Alert>
           <StatsSection />
