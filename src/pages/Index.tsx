@@ -147,7 +147,7 @@ const Index = () => {
         <div className="md:col-span-3">
           <div className="mb-6">
             <div className="flex items-center mb-4">
-              <div className="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
+              <div className="w-2 h-2 rounded-full bg-red-500 mr-2 animate-pulse"></div>
               <h2 className="text-xl font-bold">Latest Crypto News</h2>
             </div>
             <div className="space-y-4">
