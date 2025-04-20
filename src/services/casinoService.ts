@@ -2,7 +2,7 @@
 import { CryptoCasino, CasinoListFilters } from '@/types/CryptoCasino';
 import wordpress from './wordpress';
 
-const WORDPRESS_CASINO_ENDPOINT = `${wordpress.WORDPRESS_API_URL}/crypto-casinos`;
+const WORDPRESS_CASINO_ENDPOINT = `${wordpress.WORDPRESS_API_URL || 'https://yourdomain.com/wp-json/wp/v2'}/crypto-casinos`;
 
 /**
  * Fetch crypto casino listings from WordPress
