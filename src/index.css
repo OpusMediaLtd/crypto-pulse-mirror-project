@@ -99,3 +99,26 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .story-link {
+    @apply relative inline-block;
+  }
+  
+  .story-link::after {
+    content: '';
+    @apply absolute w-full scale-x-0 h-0.5 bottom-0 left-0 bg-primary origin-bottom-right transition-transform duration-300;
+  }
+  
+  .story-link:hover::after {
+    @apply scale-x-100 origin-bottom-left;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-sm bg-white/90 shadow-lg border border-gray-200/50;
+  }
+}

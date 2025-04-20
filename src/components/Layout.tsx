@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from './Header';
 import RollingTicker from './RollingTicker';
@@ -22,7 +21,7 @@ const Layout = ({
   canonical
 }: LayoutProps) => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <SEOHead 
         title={title}
         description={description}
@@ -32,10 +31,10 @@ const Layout = ({
       />
       <Header />
       <RollingTicker />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 animate-fade-in">
         {children}
       </main>
-      <footer className="bg-primary text-white py-12">
+      <footer className="bg-gradient-to-b from-primary to-primary/90 text-white py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>

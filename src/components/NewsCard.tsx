@@ -14,20 +14,20 @@ interface NewsCardProps {
 
 const NewsCard = ({ title, description, image, category, time, slug }: NewsCardProps) => {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow hover-scale">
       <Link to={`/post/${slug}`} className="block">
-        <div className="aspect-video relative overflow-hidden">
+        <div className="aspect-video relative overflow-hidden group">
           <img 
             src={image} 
             alt={title}
-            className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
+            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
           />
-          <span className="absolute top-2 left-2 bg-primary text-white px-2 py-1 rounded text-sm">
+          <span className="absolute top-2 left-2 bg-primary/90 text-white px-2 py-1 rounded-full text-sm backdrop-blur-sm">
             {category}
           </span>
         </div>
         <CardHeader className="space-y-1 p-4">
-          <CardTitle className="line-clamp-2 text-lg font-semibold hover:text-primary transition-colors">
+          <CardTitle className="line-clamp-2 text-lg font-semibold story-link">
             {title}
           </CardTitle>
         </CardHeader>
