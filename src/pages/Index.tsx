@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -8,6 +9,8 @@ import { Separator } from '@/components/ui/separator';
 import { ChevronRight } from 'lucide-react';
 import wordpress from '@/services/wordpress';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import StatsSection from '@/components/StatsSection';
+import NewsletterSignup from '@/components/NewsletterSignup';
 
 const Index = () => {
   const { currency } = useCurrency();
@@ -142,6 +145,7 @@ const Index = () => {
 
   return (
     <Layout>
+      <StatsSection />
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Recent Articles (Left Sidebar) */}
         <div className="md:col-span-3">
@@ -240,6 +244,9 @@ const Index = () => {
             ))}
           </div>
         </div>
+      </div>
+      <div className="mt-12">
+        <NewsletterSignup />
       </div>
     </Layout>
   );
