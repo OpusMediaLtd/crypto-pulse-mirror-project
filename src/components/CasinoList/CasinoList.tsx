@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,7 +11,11 @@ import { SearchIcon, SlidersHorizontal, Bitcoin, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 
-const CasinoList = () => {
+interface CasinoListProps {
+  limit?: number;
+}
+
+const CasinoList: React.FC<CasinoListProps> = ({ limit }) => {
   const [filters, setFilters] = useState<CasinoListFilters>({});
   const [showFilters, setShowFilters] = useState(false);
   
@@ -30,7 +33,6 @@ const CasinoList = () => {
         description: `Thank you for your ${isPositive ? 'positive' : 'negative'} review.`,
       });
       
-      // Refetch to update the counts
       refetch();
     } catch (error) {
       console.error('Error submitting review:', error);
@@ -72,96 +74,100 @@ const CasinoList = () => {
     }));
   };
   
+  const displayedCasinos = limit ? casinos?.slice(0, limit) : casinos;
+  
   return (
     <div className="mb-8">
-      <Card className="mb-6">
-        <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl flex items-center">
-                <Bitcoin className="mr-2 h-6 w-6 text-primary" />
-                Top Crypto Casinos
-              </CardTitle>
-              <CardDescription>
-                The best online casinos accepting cryptocurrency
-              </CardDescription>
-            </div>
-            <div className="mt-4 md:mt-0 flex items-center">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="mr-2"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                <SlidersHorizontal className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => refetch()}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        
-        {showFilters && (
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {!limit && (
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex flex-col md:flex-row md:items-center justify-between">
               <div>
-                <Label htmlFor="currency-filter">Filter by Cryptocurrency</Label>
-                <Select 
-                  onValueChange={updateCurrencyFilter}
-                  defaultValue={filters.currency || ''}
-                >
-                  <SelectTrigger id="currency-filter" className="w-full">
-                    <SelectValue placeholder="All Cryptocurrencies" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {currencyOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <CardTitle className="text-2xl flex items-center">
+                  <Bitcoin className="mr-2 h-6 w-6 text-primary" />
+                  Top Crypto Casinos
+                </CardTitle>
+                <CardDescription>
+                  The best online casinos accepting cryptocurrency
+                </CardDescription>
               </div>
-              
-              <div>
-                <Label htmlFor="rating-filter">Filter by Rating</Label>
-                <Select 
-                  onValueChange={updateRatingFilter}
-                  defaultValue={filters.minRating?.toString() || '0'}
+              <div className="mt-4 md:mt-0 flex items-center">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mr-2"
+                  onClick={() => setShowFilters(!showFilters)}
                 >
-                  <SelectTrigger id="rating-filter" className="w-full">
-                    <SelectValue placeholder="All Ratings" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ratingOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <SlidersHorizontal className="h-4 w-4 mr-2" />
+                  Filters
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => refetch()}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Refresh
+                </Button>
               </div>
             </div>
-          </CardContent>
-        )}
-      </Card>
+          </CardHeader>
+          
+          {showFilters && (
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="currency-filter">Filter by Cryptocurrency</Label>
+                  <Select 
+                    onValueChange={updateCurrencyFilter}
+                    defaultValue={filters.currency || ''}
+                  >
+                    <SelectTrigger id="currency-filter" className="w-full">
+                      <SelectValue placeholder="All Cryptocurrencies" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currencyOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="rating-filter">Filter by Rating</Label>
+                  <Select 
+                    onValueChange={updateRatingFilter}
+                    defaultValue={filters.minRating?.toString() || '0'}
+                  >
+                    <SelectTrigger id="rating-filter" className="w-full">
+                      <SelectValue placeholder="All Ratings" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ratingOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          )}
+        </Card>
+      )}
       
       {isLoading ? (
         <div className="space-y-4">
-          {[1, 2, 3].map(i => (
+          {[1, 2, limit || 3].map(i => (
             <Card key={i} className="w-full h-48 animate-pulse bg-muted/50"></Card>
           ))}
         </div>
       ) : (
         <div className="space-y-4">
-          {casinos?.map((casino: CryptoCasino) => (
+          {displayedCasinos?.map((casino: CryptoCasino) => (
             <CasinoListItem 
               key={casino.id} 
               casino={casino} 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -11,9 +10,10 @@ import RecentArticles from '@/components/RecentArticles';
 import FeaturedStories from '@/components/FeaturedStories';
 import DeepDives from '@/components/DeepDives';
 import AdSpace from '@/components/AdSpace';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bitcoin, ExternalLink } from 'lucide-react';
+import { Bitcoin, ExternalLink, Trophy } from 'lucide-react';
+import CasinoList from '@/components/CasinoList/CasinoList';
 
 const Index = () => {
   const { currency } = useCurrency();
@@ -155,28 +155,35 @@ const Index = () => {
 
         <div className="md:col-span-6">
           <FeaturedStories stories={featuredStories} />
+          
           <div className="my-8">
             <Card className="overflow-hidden">
-              <CardContent className="p-0">
-                <div className="bg-gradient-to-r from-primary/20 to-primary/5 p-6">
-                  <div className="flex items-center mb-4">
-                    <Bitcoin className="h-8 w-8 text-primary mr-3" />
-                    <h2 className="text-2xl font-bold">Top Crypto Casinos 2025</h2>
-                  </div>
-                  <p className="mb-4 text-muted-foreground">
-                    Explore our comprehensive list of the best cryptocurrency gambling sites, featuring exclusive bonuses and provably fair games.
-                  </p>
-                  <Button asChild>
-                    <Link to="/crypto-casinos">
-                      View Top Casinos <ExternalLink className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
+              <CardHeader className="bg-gradient-to-r from-primary/20 to-primary/5">
+                <div className="flex items-center">
+                  <Trophy className="h-8 w-8 text-primary mr-3" />
+                  <CardTitle>Top Crypto Casinos 2025</CardTitle>
                 </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="mb-4">
+                  <p className="text-muted-foreground">
+                    Explore our handpicked selection of the best cryptocurrency gambling platforms, featuring exclusive bonuses and secure gaming options.
+                  </p>
+                  <div className="mt-4">
+                    <Button asChild>
+                      <Link to="/crypto-casinos">
+                        View Full Rankings <ExternalLink className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+                <CasinoList limit={3} />
               </CardContent>
             </Card>
-            <div className="mt-8">
-              <AdSpace variant="banner" message="Get Started with Crypto Trading - 30% Discount" />
-            </div>
+          </div>
+
+          <div className="mt-8">
+            <AdSpace variant="banner" message="Get Started with Crypto Trading - 30% Discount" />
           </div>
         </div>
 
