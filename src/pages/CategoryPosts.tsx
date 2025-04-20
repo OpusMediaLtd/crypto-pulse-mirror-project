@@ -15,6 +15,7 @@ const CategoryPosts = () => {
     staleTime: 5 * 60 * 1000, // Categories don't change often
   });
   
+  // Find the category by slug
   const category = categories?.find(cat => cat.slug === slug);
   
   const { data: posts, isLoading } = useQuery({
@@ -23,6 +24,9 @@ const CategoryPosts = () => {
     enabled: !!category?.id,
     staleTime: 2 * 60 * 1000, // Consider posts fresh for 2 minutes
   });
+
+  // For debugging
+  console.log('Category data:', { slug, categoryId: category?.id, postsFound: posts?.length });
 
   return (
     <Layout 

@@ -1,3 +1,4 @@
+
 /**
  * WordPress API services for posts
  */
@@ -43,6 +44,7 @@ const fetchWithCache = async (url: string, cacheDuration: number) => {
  */
 export const getPosts = async (page = 1, perPage = 9, category?: number): Promise<WordPressPost[]> => {
   if (WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
+    console.log('Using mock data with category:', category);
     const allMockPosts = getMockPosts();
     const startIndex = (page - 1) * perPage;
     const endIndex = startIndex + perPage;
@@ -50,6 +52,7 @@ export const getPosts = async (page = 1, perPage = 9, category?: number): Promis
     let filteredPosts = allMockPosts;
     if (category) {
       filteredPosts = allMockPosts.filter(post => post.categories.includes(category));
+      console.log(`Filtered to ${filteredPosts.length} posts for category ${category}`);
     }
     
     return filteredPosts.slice(startIndex, endIndex);
