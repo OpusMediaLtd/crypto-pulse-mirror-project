@@ -2,7 +2,6 @@ import React from 'react';
 import Header from './Header';
 import RollingTicker from './RollingTicker';
 import SEOHead from './SEOHead';
-
 interface LayoutProps {
   children: React.ReactNode;
   title?: string;
@@ -11,8 +10,7 @@ interface LayoutProps {
   ogType?: 'website' | 'article';
   canonical?: string;
 }
-
-const Layout = ({ 
+const Layout = ({
   children,
   title = 'Cryptocurrency News & Analysis',
   description = 'Latest cryptocurrency news, market analysis, and blockchain insights from the CryptoPulse team.',
@@ -20,15 +18,8 @@ const Layout = ({
   ogType,
   canonical
 }: LayoutProps) => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <SEOHead 
-        title={title}
-        description={description}
-        ogImage={ogImage}
-        ogType={ogType}
-        canonical={canonical}
-      />
+  return <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white bg-slate-950">
+      <SEOHead title={title} description={description} ogImage={ogImage} ogType={ogType} canonical={canonical} />
       <Header />
       <RollingTicker />
       <main className="container mx-auto px-4 py-8 animate-fade-in">
@@ -65,11 +56,7 @@ const Layout = ({
               <h3 className="text-lg font-bold mb-4">Newsletter</h3>
               <p className="text-gray-300 mb-2">Stay updated with the latest crypto news</p>
               <div className="flex">
-                <input 
-                  type="email" 
-                  placeholder="Your email" 
-                  className="px-4 py-2 rounded-l text-gray-800 w-full"
-                />
+                <input type="email" placeholder="Your email" className="px-4 py-2 rounded-l text-gray-800 w-full" />
                 <button className="bg-primary border border-white px-4 py-2 rounded-r hover:bg-white hover:text-primary transition-colors">
                   Subscribe
                 </button>
@@ -81,8 +68,6 @@ const Layout = ({
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Layout;
