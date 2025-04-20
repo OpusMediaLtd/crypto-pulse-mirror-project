@@ -18,6 +18,12 @@ const CasinoListItem = ({ casino, onReview }: CasinoListItemProps) => {
     window.open(casino.affiliateLink, '_blank', 'noopener,noreferrer');
   };
 
+  // Generate a reliable fallback image for any casino
+  const getFallbackImage = (casinoName: string) => {
+    const formattedName = casinoName.replace(/[^\w\s]/gi, '').trim();
+    return `https://placehold.co/300x300/1F2937/FFFFFF?text=${encodeURIComponent(formattedName)}`;
+  };
+
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg border border-border/50">
       <CardContent className="p-6">
@@ -30,7 +36,7 @@ const CasinoListItem = ({ casino, onReview }: CasinoListItemProps) => {
                 alt={`${casino.name} logo`}
                 className="max-w-full max-h-full object-contain"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://placehold.co/100x100/F7FAFC/BEBED4?text=Casino';
+                  (e.target as HTMLImageElement).src = getFallbackImage(casino.name);
                 }}
               />
             </div>

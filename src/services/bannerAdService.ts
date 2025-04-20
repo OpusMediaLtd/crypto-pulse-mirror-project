@@ -18,7 +18,7 @@ const getBetpandaBannerAd = (location: string): BannerAd => ({
   title: "Betpanda.io – #1 Crypto Casino",
   content: "Join Betpanda.io now for a top bonus and lightning-fast withdrawals. Crypto gambling never looked this good!",
   link: "https://betpanda.io/",
-  image: "https://betpanda.io/cdn/images/promo-banner.jpg", // Replace with actual Betpanda banner if available
+  image: "https://placehold.co/600x400/1F2937/FFFFFF?text=Betpanda.io", // Using a reliable placeholder image
   location,
   active: true
 });

@@ -1,16 +1,23 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Package } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import bannerAdService from '@/services/bannerAdService';
 
 const BannerAd = () => {
+  const [imgError, setImgError] = useState(false);
+  
   const { data: bannerAd } = useQuery({
     queryKey: ['banner-ad', 'banner'],
     queryFn: () => bannerAdService.getRandomBannerAdForLocation('banner'),
     staleTime: 5 * 60 * 1000, // Banner ads are fresh for 5 minutes
   });
+
+  // Reset image error state when ad changes
+  useEffect(() => {
+    setImgError(false);
+  }, [bannerAd]);
 
   const handleAdClick = () => {
     if (bannerAd) {

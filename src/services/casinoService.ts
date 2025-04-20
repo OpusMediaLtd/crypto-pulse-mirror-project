@@ -1,4 +1,3 @@
-
 import { CryptoCasino, CasinoListFilters } from '@/types/CryptoCasino';
 import { WORDPRESS_CASINO_ENDPOINT } from './wordpress/config';
 import { fetchWithCache } from './wordpress/utils';
@@ -12,7 +11,7 @@ const CASINO_CACHE_TIME = 15 * 60 * 1000; // 15 minutes
 const betpandaCasino: CryptoCasino = {
   id: 100000,
   name: "Betpanda.io",
-  logo: "https://betpanda.io/cdn/images/logo-dark.svg", // replace with actual Betpanda logo URL if available
+  logo: "https://placehold.co/300x300/1F2937/FFFFFF?text=Betpanda.io", // Using a reliable placeholder image
   rating: 5,
   description: "Betpanda.io is the #1 crypto casino for 2025. Top bonuses, instant crypto payouts, and a massive library of provably fair games. Sign up and experience next-level crypto gambling.",
   acceptedCurrencies: [

@@ -11,11 +11,18 @@ interface AdSpaceProps {
 }
 
 const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => {
+  const [imgError, setImgError] = useState(false);
+  
   const { data: bannerAd } = useQuery({
     queryKey: ['banner-ad', variant],
     queryFn: () => bannerAdService.getRandomBannerAdForLocation(variant),
     staleTime: 5 * 60 * 1000, // Banner ads are fresh for 5 minutes
   });
+
+  // Reset image error state when ad changes
+  useEffect(() => {
+    setImgError(false);
+  }, [bannerAd]);
 
   const getAdStyles = () => {
     switch (variant) {
@@ -45,12 +52,13 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
       className={`${getAdStyles()} bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border dark:border-slate-800 rounded-lg mb-8 cursor-pointer`}
       onClick={handleAdClick}
     >
-      {bannerAd && bannerAd.image ? (
+      {bannerAd && bannerAd.image && !imgError ? (
         <div className="h-full relative overflow-hidden rounded-lg">
           <img 
             src={bannerAd.image} 
             alt={bannerAd.title}
             className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
           />
           <div className="absolute top-3 left-3 flex items-center space-x-2">
             <Package className="h-4 w-4 text-white" />
@@ -73,8 +81,11 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground dark:text-gray-400 text-center">
-            {message}
+            {bannerAd ? (bannerAd.content || bannerAd.title) : message}
           </p>
+          {bannerAd?.title === "Betpanda.io – #1 Crypto Casino" && (
+            <p className="mt-4 text-xl font-bold text-primary">Betpanda.io</p>
+          )}
         </div>
       )}
     </div>
