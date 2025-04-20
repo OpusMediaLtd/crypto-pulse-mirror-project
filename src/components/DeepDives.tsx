@@ -35,8 +35,11 @@ const DeepDives = ({ articles }: DeepDivesProps) => {
   };
 
   if (!articles || articles.length === 0) {
+    console.log('DeepDives: No articles provided');
     return null;
   }
+
+  console.log('DeepDives rendering with articles:', articles);
 
   return (
     <div>

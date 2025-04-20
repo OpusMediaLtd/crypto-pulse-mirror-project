@@ -23,6 +23,12 @@ const LoadingSkeleton = () => (
 );
 
 const MainContentGrid = ({ recentArticles, featuredStories, deepDives }: MainContentGridProps) => {
+  console.log('🧠 MainContentGrid Props:', {
+    recentArticles,
+    featuredStories,
+    deepDives
+  });
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
       <div className="md:col-span-3">

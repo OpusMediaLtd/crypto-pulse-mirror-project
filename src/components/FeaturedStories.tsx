@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -36,8 +37,11 @@ const FeaturedStories = ({ stories }: FeaturedStoriesProps) => {
   };
   
   if (!stories || stories.length === 0) {
+    console.log('FeaturedStories: No stories provided');
     return null;
   }
+
+  console.log('FeaturedStories rendering with stories:', stories);
 
   return (
     <div>

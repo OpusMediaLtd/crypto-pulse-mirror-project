@@ -34,8 +34,11 @@ const RecentArticles = ({ articles }: RecentArticlesProps) => {
   };
 
   if (!articles || articles.length === 0) {
+    console.log('RecentArticles: No articles provided');
     return null;
   }
+
+  console.log('RecentArticles rendering with articles:', articles);
 
   return (
     <div className="mb-6">
