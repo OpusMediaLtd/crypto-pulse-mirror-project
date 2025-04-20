@@ -8,6 +8,7 @@ interface Article {
   category: string;
   time: string;
   slug: string;
+  image?: string;
 }
 
 interface RecentArticlesProps {
@@ -24,12 +25,27 @@ const RecentArticles = ({ articles }: RecentArticlesProps) => {
       <div className="space-y-4">
         {articles.map((article) => (
           <div key={article.id} className="border-b pb-4">
-            <div className="text-xs text-gray-500 mb-1">
-              <span className="text-blue-500">{article.category}</span> • {article.time}
+            <div className="flex gap-2">
+              {article.image && (
+                <Link to={`/post/${article.slug}`} className="shrink-0">
+                  <div className="w-16 h-16 overflow-hidden rounded">
+                    <img 
+                      src={article.image} 
+                      alt={article.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </Link>
+              )}
+              <div className="flex-1">
+                <div className="text-xs text-gray-500 mb-1">
+                  <span className="text-blue-500">{article.category}</span> • {article.time}
+                </div>
+                <Link to={`/post/${article.slug}`} className="block font-medium hover:text-primary transition-colors">
+                  {article.title}
+                </Link>
+              </div>
             </div>
-            <Link to={`/post/${article.slug}`} className="block font-medium hover:text-primary transition-colors">
-              {article.title}
-            </Link>
           </div>
         ))}
       </div>
