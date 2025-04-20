@@ -12,49 +12,9 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Mock data to use as fallback
-const mockPosts = [
-  {
-    id: 1,
-    title: { rendered: "Bitcoin Reaches New All-Time High" },
-    excerpt: { rendered: "<p>Bitcoin has surpassed previous records, reaching a new all-time high price.</p>" },
-    slug: "bitcoin-new-ath",
-    date: new Date().toISOString(),
-    _embedded: {
-      'wp:featuredmedia': [{ source_url: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=600&auto=format" }],
-      'wp:term': [[{ name: "Bitcoin", slug: "bitcoin" }]],
-      'author': [{ name: "CryptoPulse Staff" }]
-    }
-  },
-  {
-    id: 2,
-    title: { rendered: "Ethereum 2.0 Update Progress" },
-    excerpt: { rendered: "<p>The latest on Ethereum's transition to proof-of-stake.</p>" },
-    slug: "ethereum-2-progress",
-    date: new Date().toISOString(),
-    _embedded: {
-      'wp:featuredmedia': [{ source_url: "https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=600&auto=format" }],
-      'wp:term': [[{ name: "Ethereum", slug: "ethereum" }]],
-      'author': [{ name: "CryptoPulse Staff" }]
-    }
-  },
-  {
-    id: 3,
-    title: { rendered: "Regulations Coming For Crypto Exchanges" },
-    excerpt: { rendered: "<p>New regulatory frameworks being developed for cryptocurrency exchanges worldwide.</p>" },
-    slug: "crypto-exchange-regulations",
-    date: new Date().toISOString(),
-    _embedded: {
-      'wp:featuredmedia': [{ source_url: "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=600&auto=format" }],
-      'wp:term': [[{ name: "Regulation", slug: "regulation" }]],
-      'author': [{ name: "CryptoPulse Staff" }]
-    }
-  }
-];
-
 const Index = () => {
   const { currency } = useCurrency();
-  
+
   const { 
     data: posts, 
     isLoading: postsLoading, 
@@ -64,25 +24,21 @@ const Index = () => {
     queryKey: ['posts'],
     queryFn: async () => {
       console.log('Fetching posts from WordPress');
-      try {
-        // Use explicit numeric values to ensure proper parameter type
-        const wpPosts = await wordpress.getPosts(1, 9);
-        console.log('WordPress posts retrieved:', wpPosts);
-        return wpPosts;
-      } catch (err) {
-        console.error('Error fetching posts:', err);
-        toast({
-          title: "Could not load content",
-          description: "We're having trouble connecting to our content server. Using fallback content.",
-          variant: "destructive"
-        });
-        // Return mock data as fallback
-        return mockPosts;
-      }
+      // Use explicit numeric values to ensure proper parameter type
+      return await wordpress.getPosts(1, 9);
     },
     staleTime: 1 * 60 * 1000, // Consider posts fresh for 1 minute
     retry: 1, // Only retry once
     retryDelay: 1000, // 1 second between retries
+    onError: (err) => {
+      toast({
+        title: "Could not load content",
+        description: "We're having trouble connecting to our content server.",
+        variant: "destructive"
+      });
+      console.error('Error fetching posts:', err);
+    },
+    // Do not use fallback data here
   });
 
   // Convert WordPress posts to the format expected by components
@@ -158,3 +114,4 @@ const Index = () => {
 };
 
 export default Index;
+
