@@ -20,6 +20,15 @@ export interface WordPressPost {
     'wp:featuredmedia'?: {
       source_url: string;
     }[];
+    'wp:term'?: {
+      name: string;
+      slug: string;
+      id: number;
+    }[][];
+    author?: {
+      name: string;
+      id: number;
+    }[];
   };
   categories: number[];
 }

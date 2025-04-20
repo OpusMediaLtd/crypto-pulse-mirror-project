@@ -167,13 +167,17 @@ const formatPostDate = (dateString: string): string => {
   }
 };
 
-// Helper function to extract author (placeholder implementation)
+// Helper function to extract author (updated implementation)
 const extractAuthor = (post: WordPressPost): string => {
-  if (post._embedded && 
-      post._embedded.author && 
-      post._embedded.author[0] && 
-      post._embedded.author[0].name) {
-    return post._embedded.author[0].name;
+  try {
+    if (post._embedded && 
+        post._embedded.author && 
+        post._embedded.author[0] && 
+        post._embedded.author[0].name) {
+      return post._embedded.author[0].name;
+    }
+  } catch (error) {
+    console.warn('Error extracting author:', error);
   }
   return 'CryptoPulse Staff';
 };
