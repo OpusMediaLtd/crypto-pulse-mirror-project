@@ -10,6 +10,7 @@ import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getMockPosts } from '@/services/wordpress/mocks';
 
 const CategoryPosts = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -54,7 +55,7 @@ const CategoryPosts = () => {
     queryKey: ['categories'],
     queryFn: () => wordpress.getCategories(),
     staleTime: 5 * 60 * 1000, // Categories don't change often
-    retry: 2,
+    retry: 3,
     retryDelay: 1000,
   });
   
@@ -68,8 +69,27 @@ const CategoryPosts = () => {
     refetch: refetchPosts
   } = useQuery({
     queryKey: ['posts', 'category', slug, category?.id],
-    queryFn: () => wordpress.getPosts(1, 12, category?.id),
-    enabled: !!slug,
+    queryFn: async () => {
+      try {
+        if (!category?.id && categories?.length > 0) {
+          throw new Error(`Category "${slug}" not found`);
+        }
+        return await wordpress.getPosts(1, 12, category?.id);
+      } catch (error) {
+        console.error('Error fetching category posts:', error);
+        // If the real API fails, use mock data
+        const mockPosts = getMockPosts();
+        const filteredPosts = mockPosts.filter(post => {
+          if (category?.id) {
+            return post.categories.includes(category.id);
+          }
+          // If no category ID (yet), filter by slug if possible
+          return post.slug.includes(slug || '');
+        });
+        return filteredPosts;
+      }
+    },
+    enabled: !!slug || categories?.length > 0,
     staleTime: 2 * 60 * 1000, // Consider posts fresh for 2 minutes
     retry: 3, // Try up to 4 times (initial + 3 retries)
     retryDelay: 1000,
@@ -81,11 +101,11 @@ const CategoryPosts = () => {
       console.error('Error loading category posts:', postsError);
       toast({
         title: "Error loading posts",
-        description: "There was a problem loading posts from the WordPress API. Using fallback content.",
+        description: `There was a problem loading posts for "${slug}". Trying alternative sources.`,
         variant: "destructive"
       });
     }
-  }, [postsError]);
+  }, [postsError, slug]);
 
   // For debugging
   console.log('Category data:', { 
@@ -131,8 +151,8 @@ const CategoryPosts = () => {
 
   return (
     <Layout 
-      title={category?.name || 'Bitcoin'}
-      description={`Latest ${category?.name || 'cryptocurrency'} news and analysis from CryptoPulse`}
+      title={category?.name || slug || 'Category'}
+      description={`Latest ${category?.name || slug || 'cryptocurrency'} news and analysis from CryptoPulse`}
       canonical={`https://cryptopulse.com/category/${slug}`}
     >
       <section>
@@ -155,7 +175,7 @@ const CategoryPosts = () => {
             <AlertDescription>
               There's a problem connecting to the WordPress API: {apiTestStatus.message}
               <div className="mt-2">
-                <p className="text-sm">Check your WordPress CORS settings and make sure the API endpoint is accessible.</p>
+                <p className="text-sm">Try setting the VITE_WORDPRESS_API environment variable to your WordPress API URL.</p>
               </div>
             </AlertDescription>
           </Alert>
@@ -175,7 +195,6 @@ const CategoryPosts = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post) => {
               const newsItem = wordpress.convertPostToNewsItem(post);
-              console.log('Rendering news item:', newsItem);
               return <NewsCard key={post.id} {...newsItem} />;
             })}
           </div>
@@ -185,7 +204,7 @@ const CategoryPosts = () => {
             <p className="text-gray-500 mb-6">
               {postsError 
                 ? "There was an error loading articles. You can try refreshing or check API settings."
-                : "There are currently no articles in this category. Please check back later."}
+                : `There are currently no articles in the "${slug}" category. Please check back later.`}
             </p>
             
             <Button onClick={handleRefresh} className="mb-4">

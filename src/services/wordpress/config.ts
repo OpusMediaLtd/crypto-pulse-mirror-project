@@ -1,6 +1,6 @@
 
-// Check for environment variables, then use the fallback URL if not available
-export const WORDPRESS_API_URL = import.meta.env.VITE_WORDPRESS_API || 'https://demo.wp-api.org/wp-json/wp/v2';
+// Check for environment variables, then use a reliable demo URL if not available
+export const WORDPRESS_API_URL = import.meta.env.VITE_WORDPRESS_API || 'https://wptavern.com/wp-json/wp/v2';
 
 // Based on the screenshots, our URLs need to use the direct path format
 export const getDirectApiUrl = () => {
@@ -8,30 +8,39 @@ export const getDirectApiUrl = () => {
   const useBackupApi = import.meta.env.VITE_USE_BACKUP_API === 'true';
   
   if (useBackupApi) {
-    // Use WordPress.org demo site as backup
+    // Use WordPress.org test site as backup
     console.log('Using backup WordPress API');
-    return 'https://demo.wp-api.org/wp-json/wp/v2';
+    return 'https://wptavern.com/wp-json/wp/v2';
   }
   
-  const baseUrl = WORDPRESS_API_URL.replace('/index.php?rest_route=/wp/v2', '/wp-json/wp/v2');
-  console.log('Using WordPress API base URL:', baseUrl);
-  return baseUrl;
+  // For sites using pretty permalinks
+  if (WORDPRESS_API_URL.includes('/index.php?rest_route=')) {
+    // Convert to direct path format if using index.php?rest_route format
+    return WORDPRESS_API_URL.replace('/index.php?rest_route=/wp/v2', '/wp-json/wp/v2');
+  }
+  
+  console.log('Using WordPress API base URL:', WORDPRESS_API_URL);
+  return WORDPRESS_API_URL;
 };
 
-// Original fallback URL kept for reference
-export const DEFAULT_WP_API_URL = 'https://demo.wp-api.org/wp-json/wp/v2';
+// List of reliable WordPress demo sites to try if needed
+export const WORDPRESS_API_FALLBACKS = [
+  'https://wptavern.com/wp-json/wp/v2',
+  'https://techcrunch.com/wp-json/wp/v2',
+  'https://content.wpmudev.org/wp-json/wp/v2'
+];
 
 // Custom post types API endpoints
 export const WORDPRESS_CASINO_ENDPOINT = `${getDirectApiUrl()}/crypto-casinos`;
 export const WORDPRESS_BANNER_ADS_ENDPOINT = `${getDirectApiUrl()}/banner-ads`;
 
 // Log the API URL being used
-console.log('WordPress API URL being used:', WORDPRESS_API_URL);
+console.log('WordPress API URL configured as:', WORDPRESS_API_URL);
 console.log('Direct API URL format:', getDirectApiUrl());
 
 export default {
   WORDPRESS_API_URL: getDirectApiUrl(),
-  DEFAULT_WP_API_URL,
+  WORDPRESS_API_FALLBACKS,
   WORDPRESS_CASINO_ENDPOINT,
   WORDPRESS_BANNER_ADS_ENDPOINT
 };

@@ -2,6 +2,7 @@
 /**
  * Utility functions for the WordPress API service
  */
+import { WORDPRESS_API_FALLBACKS } from './config';
 
 // In-memory cache
 const cache: Record<string, { data: any; timestamp: number }> = {};
@@ -15,7 +16,7 @@ export const getCorsProxyUrl = (url: string): string => {
 };
 
 /**
- * Fetch with simple in-memory cache and timeout
+ * Fetch with simple in-memory cache, timeout, and multiple fallback attempts
  */
 export const fetchWithCache = async (url: string, cacheDuration: number) => {
   const now = Date.now();
@@ -28,26 +29,114 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
   }
 
   console.log('Fetching WordPress data from:', url);
+  
+  // Try the provided URL first, then try fallbacks if needed
+  let lastError: Error | null = null;
+  
+  // First try direct URL
   try {
-    // Add a timeout to the fetch request
+    console.log('Attempting direct API request to:', url);
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
-    // Try direct URL first (no proxy)
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    
+    const directResponse = await fetch(url, { 
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (directResponse.ok) {
+      const data = await directResponse.json();
+      console.log('WordPress API direct response received successfully');
+      
+      // Update cache
+      cache[cacheKey] = {
+        data,
+        timestamp: now
+      };
+      
+      return data;
+    }
+    
+    console.log('Direct request failed with status:', directResponse.status);
+  } catch (directError) {
+    console.log('Direct request failed:', directError);
+    lastError = directError as Error;
+  }
+  
+  // Try with CORS proxy as fallback
+  try {
+    console.log('Falling back to CORS proxy...');
+    const proxyUrl = getCorsProxyUrl(url);
+    console.log('Using CORS proxy URL:', proxyUrl);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    
+    const response = await fetch(proxyUrl, { 
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('WordPress API response via CORS proxy received successfully');
+      
+      // Update cache
+      cache[cacheKey] = {
+        data,
+        timestamp: now
+      };
+      
+      return data;
+    }
+    
+    console.log('CORS proxy request failed with status:', response.status);
+  } catch (proxyError) {
+    console.log('CORS proxy request failed:', proxyError);
+    lastError = proxyError as Error;
+  }
+  
+  // Try fallback WordPress sites
+  for (const fallbackBaseUrl of WORDPRESS_API_FALLBACKS) {
     try {
-      console.log('Attempting direct API request to:', url);
-      const directResponse = await fetch(url, { 
+      // Skip if this is the same as our original URL
+      if (url.includes(fallbackBaseUrl)) {
+        continue;
+      }
+      
+      // Create fallback URL by replacing the base URL portion
+      const endpoint = url.split('/wp-json/wp/v2/')[1];
+      if (!endpoint) continue;
+      
+      const fallbackUrl = `${fallbackBaseUrl}/${endpoint}`;
+      console.log('Trying fallback WordPress site:', fallbackUrl);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
+      const fallbackResponse = await fetch(fallbackUrl, {
         signal: controller.signal,
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         }
       });
-
-      if (directResponse.ok) {
-        clearTimeout(timeoutId);
-        const data = await directResponse.json();
-        console.log('WordPress API direct response received successfully');
+      
+      clearTimeout(timeoutId);
+      
+      if (fallbackResponse.ok) {
+        const data = await fallbackResponse.json();
+        console.log('Fallback WordPress site response successful');
         
         // Update cache
         cache[cacheKey] = {
@@ -58,79 +147,16 @@ export const fetchWithCache = async (url: string, cacheDuration: number) => {
         return data;
       }
       
-      console.log('Direct request failed, trying with CORS proxy...');
-    } catch (directError) {
-      console.log('Direct request failed:', directError);
-      console.log('Falling back to CORS proxy...');
+      console.log('Fallback request failed with status:', fallbackResponse.status);
+    } catch (fallbackError) {
+      console.log('Fallback request failed:', fallbackError);
+      lastError = fallbackError as Error;
     }
-
-    // Use the CORS proxy for the request as fallback
-    const proxyUrl = getCorsProxyUrl(url);
-    console.log('Using CORS proxy URL:', proxyUrl);
-    
-    const response = await fetch(proxyUrl, { 
-      signal: controller.signal,
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      console.error(`Failed to fetch from ${url}: Status ${response.status} ${response.statusText}`);
-      
-      try {
-        // Try to get error details from the response
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        
-        try {
-          // Try to parse as JSON if possible
-          const errorData = JSON.parse(errorText);
-          console.error('API error details:', errorData);
-          
-          if (errorData.message) {
-            throw new Error(`API error: ${errorData.message}`);
-          }
-        } catch (jsonError) {
-          // If can't parse as JSON, just log the text
-          console.error('Non-JSON error response');
-        }
-      } catch (textError) {
-        console.error('Could not read error response text');
-      }
-      
-      throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    console.log('WordPress API Response received successfully');
-
-    // Update cache
-    cache[cacheKey] = {
-      data,
-      timestamp: now
-    };
-
-    return data;
-  } catch (error) {
-    console.error(`Error fetching from ${url}:`, error);
-    
-    // If this is a timeout or network error, check if we have stale cache
-    if (cache[cacheKey]) {
-      console.warn('Using stale cache due to fetch error');
-      return cache[cacheKey].data;
-    }
-
-    // If it's a CORS error, suggest solutions in the console
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      console.error('This may be a CORS issue. Using CORS proxy but still failed.');
-    }
-
-    throw error; // Re-throw to handle it in the calling function
   }
+  
+  // All attempts failed, throw the last error
+  console.error('All WordPress API attempts failed');
+  throw lastError || new Error('Failed to fetch data from all WordPress sources');
 };
 
 /**
