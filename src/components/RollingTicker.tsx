@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Bitcoin, TrendingUp, TrendingDown } from 'lucide-react';
+import { Bitcoin, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import crypto from '@/services/crypto';
 
 const RollingTicker = () => {
@@ -36,12 +36,21 @@ const RollingTicker = () => {
   // Duplicate the array to create a seamless infinite scroll effect
   const duplicatedPrices = [...(cryptoPrices || []), ...(cryptoPrices || [])];
 
+  const getCryptoIcon = (id: string) => {
+    switch (id) {
+      case 'bitcoin':
+        return <Bitcoin className="h-5 w-5 text-primary" />;
+      default:
+        return <DollarSign className="h-5 w-5 text-primary" />;
+    }
+  };
+
   return (
     <div className="bg-primary/5 border-b py-2 overflow-hidden">
       <div className="animate-[slide_60s_linear_infinite] flex gap-8 whitespace-nowrap">
         {duplicatedPrices.map((crypto, index) => (
           <div key={`${crypto.id}-${index}`} className="flex items-center gap-2">
-            <Bitcoin className="h-5 w-5 text-primary" />
+            {getCryptoIcon(crypto.id)}
             <span className="font-medium">{crypto.symbol.toUpperCase()}</span>
             <span>${crypto.current_price.toLocaleString()}</span>
             <span className={`flex items-center ${
