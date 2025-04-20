@@ -1,11 +1,9 @@
-
 import { WORDPRESS_API_URL } from './config';
-import { WordPressPost, NewsItem, WordPressCategory } from './types';
+import { WordPressPost, NewsItem } from './types';
 import { getMockPosts } from './mocks';
 
 // Cache durations
 const POSTS_CACHE_TIME = 5 * 60 * 1000; // 5 minutes
-const CATEGORIES_CACHE_TIME = 30 * 60 * 1000; // 30 minutes
 
 // In-memory cache
 const cache: Record<string, { data: any; timestamp: number }> = {};
@@ -19,47 +17,27 @@ const fetchWithCache = async (url: string, cacheDuration: number) => {
     return cache[cacheKey].data;
   }
   
-  try {
-    const response = await fetch(url);
+  const response = await fetch(url);
     
-    if (!response.ok) {
-      throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    
-    // Update cache
-    cache[cacheKey] = {
-      data,
-      timestamp: now
-    };
-    
-    return data;
-  } catch (error) {
-    console.error('Fetch error:', error);
-    return getMockPosts();
+  if (!response.ok) {
+    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
   }
+    
+  const data = await response.json();
+    
+  // Update cache
+  cache[cacheKey] = {
+    data,
+    timestamp: now
+  };
+    
+  return data;
 };
 
 /**
  * Fetch posts from WordPress
  */
 export const getPosts = async (page = 1, perPage = 9, category?: number): Promise<WordPressPost[]> => {
-  // If no real API is configured, use mock data
-  if (WORDPRESS_API_URL === 'https://yourdomain.com/wp-json/wp/v2') {
-    const allMockPosts = getMockPosts();
-    const startIndex = (page - 1) * perPage;
-    const endIndex = startIndex + perPage;
-    
-    let filteredPosts = allMockPosts;
-    if (category) {
-      filteredPosts = allMockPosts.filter(post => post.categories.includes(category));
-      console.log(`Filtered to ${filteredPosts.length} posts for category ${category}`);
-    }
-    
-    return filteredPosts.slice(startIndex, endIndex);
-  }
-  
   let url = `${WORDPRESS_API_URL}/posts?_embed&page=${page}&per_page=${perPage}`;
   
   if (category) {
@@ -103,7 +81,6 @@ export const getPostBySlug = async (slug: string): Promise<WordPressPost> => {
  * Convert WordPress post to NewsCard format
  */
 export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
-  // Comprehensive validation and fallback mechanism
   if (!post || !post.title || !post.excerpt) {
     console.warn('Invalid post object:', post);
     return createFallbackNewsItem();
@@ -129,7 +106,7 @@ export const convertPostToNewsItem = (post: WordPressPost): NewsItem => {
     title: post.title.rendered,
     description: stripHtmlTags(post.excerpt.rendered),
     image: featuredMediaUrl,
-    category: 'News', // Default category, can be improved later
+    category: 'News',
     time: formatPostDate(post.date),
     slug: post.slug,
     author: extractAuthor(post)
@@ -168,4 +145,3 @@ const createFallbackNewsItem = (): NewsItem => ({
   slug: 'unavailable',
   author: 'Unknown'
 });
-

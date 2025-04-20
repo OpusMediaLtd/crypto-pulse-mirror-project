@@ -2,47 +2,39 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
-import wordpress from '@/services/wordpress';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import StatsSection from '@/components/StatsSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import MainContentGrid from '@/components/HomePage/MainContentGrid';
+import wordpress from '@/services/wordpress';
 
 const Index = () => {
   const { currency } = useCurrency();
   
-  const { data: latestPosts, isLoading: postsLoading } = useQuery({
+  const { data: posts, isLoading: postsLoading, error } = useQuery({
     queryKey: ['posts'],
-    queryFn: () => wordpress.getPosts(1, 5),
+    queryFn: () => wordpress.getPosts(1, 9),
     staleTime: 2 * 60 * 1000, // Consider posts fresh for 2 minutes
-  });
-
-  const { data: categories } = useQuery({
-    queryKey: ['categories'],
-    queryFn: () => wordpress.getCategories(),
-    staleTime: 5 * 60 * 1000, // Categories don't change often
   });
 
   // Convert WordPress posts to the format expected by components
   const convertWordPressPosts = (posts = []) => {
-    return posts.map(post => {
-      // Ensure we have a valid post object with all required fields
-      if (!post) return null;
-      return wordpress.convertPostToNewsItem(post);
-    }).filter(Boolean); // Remove any null entries
+    return posts.map(post => wordpress.convertPostToNewsItem(post)).filter(Boolean);
   };
 
-  const displayedPosts = latestPosts || [];
+  const displayedPosts = posts || [];
   const recentArticles = convertWordPressPosts(displayedPosts);
   
   // Make sure we have enough items for featured and deep dives
   const featuredStories = convertWordPressPosts(displayedPosts.slice(0, 3));
   const deepDivesPosts = displayedPosts.slice(3, 5);
-  
-  // Ensure deep dives has valid items before converting
   const deepDives = deepDivesPosts.length > 0 
     ? convertWordPressPosts(deepDivesPosts) 
     : [];
+
+  if (error) {
+    console.error('Error fetching posts:', error);
+  }
 
   return (
     <Layout>
