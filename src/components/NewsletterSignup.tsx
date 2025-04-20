@@ -1,12 +1,27 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 const NewsletterSignup = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement newsletter signup logic
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      toast({
+        title: "Success!",
+        description: "You've been signed up for our newsletter.",
+      });
+      setEmail('');
+      setIsSubmitting(false);
+    }, 500);
   };
 
   return (
@@ -20,10 +35,16 @@ const NewsletterSignup = () => {
             type="email"
             placeholder="Email"
             className="flex-1 bg-white text-gray-900"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <Button type="submit" className="bg-purple-600 hover:bg-purple-700">
-            Sign Up
+          <Button 
+            type="submit" 
+            className="bg-purple-600 hover:bg-purple-700 cursor-pointer"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Signing up...' : 'Sign Up'}
           </Button>
         </div>
         <p className="text-sm text-gray-400">

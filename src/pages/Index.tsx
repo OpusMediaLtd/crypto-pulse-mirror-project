@@ -25,7 +25,11 @@ const Index = () => {
 
   // Convert WordPress posts to the format expected by components
   const convertWordPressPosts = (posts = []) => {
-    return posts.map(post => wordpress.convertPostToNewsItem(post));
+    return posts.map(post => {
+      // Ensure we have a valid post object with all required fields
+      if (!post) return null;
+      return wordpress.convertPostToNewsItem(post);
+    }).filter(Boolean); // Remove any null entries
   };
 
   const displayedPosts = latestPosts || [];
