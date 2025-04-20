@@ -23,10 +23,21 @@ const Index = () => {
     staleTime: 5 * 60 * 1000, // Categories don't change often
   });
 
+  // Convert WordPress posts to the format expected by components
+  const convertWordPressPosts = (posts = []) => {
+    return posts.map(post => ({
+      id: post.id,
+      title: post.title.rendered,
+      category: 'News', // Default category
+      time: new Date(post.date).toLocaleString(),
+      slug: post.slug
+    }));
+  };
+
   const displayedPosts = latestPosts || [];
-  const recentArticles = displayedPosts;
-  const featuredStories = displayedPosts.slice(0, 4);
-  const deepDives = displayedPosts.slice(4);
+  const recentArticles = convertWordPressPosts(displayedPosts);
+  const featuredStories = convertWordPressPosts(displayedPosts.slice(0, 4));
+  const deepDives = convertWordPressPosts(displayedPosts.slice(4));
 
   return (
     <Layout>
