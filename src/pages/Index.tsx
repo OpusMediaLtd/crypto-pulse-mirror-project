@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -10,6 +11,7 @@ import wordpress from '@/services/wordpress';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import StatsSection from '@/components/StatsSection';
 import NewsletterSignup from '@/components/NewsletterSignup';
+import ShareButtons from '@/components/ShareButtons';
 
 const Index = () => {
   const { currency } = useCurrency();
@@ -183,8 +185,11 @@ const Index = () => {
                 </div>
                 <div className="p-4">
                   <h3 className="text-xl font-bold mb-2">{featuredStories[0].title}</h3>
-                  <div className="text-sm text-gray-500">
-                    {featuredStories[0].time} • by {featuredStories[0].author}
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-gray-500">
+                      {featuredStories[0].time} • by {featuredStories[0].author}
+                    </div>
+                    <ShareButtons title={featuredStories[0].title} url={`${window.location.origin}/post/${featuredStories[0].slug}`} />
                   </div>
                 </div>
               </Link>
@@ -202,13 +207,16 @@ const Index = () => {
                     />
                   </div>
                 </Link>
-                <div>
+                <div className="flex-1">
                   <div className="text-xs text-blue-500 mb-1">{story.category}</div>
                   <Link to={`/post/${story.slug}`} className="font-medium hover:text-primary transition-colors block mb-1">
                     {story.title}
                   </Link>
-                  <div className="text-xs text-gray-500">
-                    {story.time} • by {story.author}
+                  <div className="flex justify-between items-center">
+                    <div className="text-xs text-gray-500">
+                      {story.time} • by {story.author}
+                    </div>
+                    <ShareButtons title={story.title} url={`${window.location.origin}/post/${story.slug}`} />
                   </div>
                 </div>
               </div>
