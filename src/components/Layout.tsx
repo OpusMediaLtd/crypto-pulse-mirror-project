@@ -1,8 +1,8 @@
-
 import React from 'react';
 import Header from './Header';
 import RollingTicker from './RollingTicker';
 import SEOHead from './SEOHead';
+import BannerAd from './BannerAd';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -25,6 +25,7 @@ const Layout = ({
     <div className="min-h-screen bg-background text-foreground dark:bg-slate-950 dark:text-white">
       <SEOHead title={title} description={description} ogImage={ogImage} ogType={ogType} canonical={canonical} />
       <Header />
+      <BannerAd />
       <RollingTicker />
       <main className="container mx-auto px-4 py-8 animate-fade-in">
         {children}
