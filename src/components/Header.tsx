@@ -1,16 +1,16 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DollarSign, EuroIcon, TrendingUp, Menu } from 'lucide-react';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { Toggle } from '@/components/ui/toggle';
+import ThemeToggle from './ThemeToggle';
 
 const Header = () => {
   const { currency, toggleCurrency } = useCurrency();
 
   return (
-    <header className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
+    <header className="border-b bg-background/80 backdrop-blur-md sticky top-0 z-50 dark:border-border">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className="relative">
@@ -54,12 +54,16 @@ const Header = () => {
             <Button variant="outline" size="sm" className="hover-scale" asChild>
               <Link to="/category/featured">Subscribe</Link>
             </Button>
+            <ThemeToggle />
           </div>
           
-          {/* Mobile Menu Button */}
-          <Button variant="ghost" size="icon" className="md:hidden hover:bg-gray-100">
-            <Menu className="h-5 w-5" />
-          </Button>
+          {/* Mobile Theme Toggle and Menu */}
+          <div className="flex items-center space-x-2 md:hidden">
+            <ThemeToggle />
+            <Button variant="ghost" size="icon" className="hover:bg-accent">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
         </nav>
       </div>
     </header>
