@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -6,8 +5,9 @@ import Layout from '@/components/Layout';
 import NewsCard from '@/components/NewsCard';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Bitcoin, TrendingUp } from 'lucide-react';
+import { Bitcoin, TrendingUp, TrendingDown } from 'lucide-react';
 import wordpress from '@/services/wordpress';
+import crypto from '@/services/crypto';
 
 const Index = () => {
   const { data: latestPosts, isLoading: postsLoading } = useQuery({
@@ -20,7 +20,12 @@ const Index = () => {
     queryFn: () => wordpress.getCategories()
   });
 
-  // Fallback news data for initial load or if API fails
+  const { data: cryptoPrices, isLoading: pricesLoading } = useQuery({
+    queryKey: ['crypto-prices'],
+    queryFn: () => crypto.getPrices(['bitcoin', 'ethereum', 'binancecoin', 'ripple']),
+    refetchInterval: 30000,
+  });
+
   const newsData = [
     {
       title: "Bitcoin Surges Past $40K as Market Shows Strong Recovery Signs",
@@ -73,21 +78,50 @@ const Index = () => {
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-6">Market Overview</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {['BTC', 'ETH', 'BNB', 'XRP'].map((symbol) => (
-            <Card key={symbol} className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Bitcoin className="h-6 w-6 text-primary" />
-                  <span className="font-semibold">{symbol}</span>
+          {pricesLoading ? (
+            ['BTC', 'ETH', 'BNB', 'XRP'].map((symbol) => (
+              <Card key={symbol} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Bitcoin className="h-6 w-6 text-primary" />
+                    <span className="font-semibold">{symbol}</span>
+                  </div>
+                  <TrendingUp className="h-5 w-5 text-muted-foreground animate-pulse" />
                 </div>
-                <TrendingUp className="h-5 w-5 text-green-500" />
-              </div>
-              <div className="mt-2">
-                <div className="text-xl font-bold">$41,235.67</div>
-                <div className="text-sm text-green-500">+2.5%</div>
-              </div>
-            </Card>
-          ))}
+                <div className="mt-2">
+                  <div className="text-xl font-bold bg-muted-foreground/20 animate-pulse w-24 h-6 rounded" />
+                  <div className="text-sm bg-muted-foreground/20 animate-pulse w-12 h-4 mt-1 rounded" />
+                </div>
+              </Card>
+            ))
+          ) : (
+            cryptoPrices?.map((crypto) => (
+              <Card key={crypto.id} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Bitcoin className="h-6 w-6 text-primary" />
+                    <span className="font-semibold">{crypto.symbol.toUpperCase()}</span>
+                  </div>
+                  {crypto.price_change_percentage_24h > 0 ? (
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <TrendingDown className="h-5 w-5 text-red-500" />
+                  )}
+                </div>
+                <div className="mt-2">
+                  <div className="text-xl font-bold">
+                    ${crypto.current_price.toLocaleString()}
+                  </div>
+                  <div className={`text-sm ${
+                    crypto.price_change_percentage_24h > 0 ? 'text-green-500' : 'text-red-500'
+                  }`}>
+                    {crypto.price_change_percentage_24h > 0 ? '+' : ''}
+                    {crypto.price_change_percentage_24h.toFixed(2)}%
+                  </div>
+                </div>
+              </Card>
+            ))
+          )}
         </div>
       </section>
 
@@ -96,7 +130,6 @@ const Index = () => {
         <h2 className="text-2xl font-bold mb-6">Browse by Category</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categoriesLoading ? (
-            // Display default categories while loading
             ['Bitcoin', 'Blockchain', 'NFTs', 'DeFi'].map((category) => (
               <Button
                 key={category}
@@ -108,7 +141,6 @@ const Index = () => {
               </Button>
             ))
           ) : (
-            // Display actual WordPress categories
             categories?.slice(0, 4).map((category) => (
               <Button
                 key={category.id}
