@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import PostDetail from "./pages/PostDetail";
 import CategoryPosts from "./pages/CategoryPosts";
 import ArticlePage from "./pages/ArticlePage";
+import CryptoCasinos from "./pages/CryptoCasinos";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/category/:slug" element={<CategoryPosts />} />
               <Route path="/post/:slug" element={<ArticlePage />} />
+              <Route path="/crypto-casinos" element={<CryptoCasinos />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

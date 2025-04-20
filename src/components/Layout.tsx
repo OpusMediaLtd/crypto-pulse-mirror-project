@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Header from './Header';
 import RollingTicker from './RollingTicker';
@@ -46,6 +47,7 @@ const Layout = ({
                 <li><a href="/category/ethereum" className="text-muted-foreground dark:text-gray-300 hover:text-primary">Ethereum</a></li>
                 <li><a href="/category/defi" className="text-muted-foreground dark:text-gray-300 hover:text-primary">DeFi</a></li>
                 <li><a href="/category/nfts" className="text-muted-foreground dark:text-gray-300 hover:text-primary">NFTs</a></li>
+                <li><a href="/crypto-casinos" className="text-muted-foreground dark:text-gray-300 hover:text-primary">Crypto Casinos</a></li>
               </ul>
             </div>
             <div>
