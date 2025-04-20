@@ -1,14 +1,21 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DollarSign, EuroIcon, TrendingUp, Menu } from 'lucide-react';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { Toggle } from '@/components/ui/toggle';
 import ThemeToggle from './ThemeToggle';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import NewsletterSignup from './NewsletterSignup';
 
 const Header = () => {
   const { currency, toggleCurrency } = useCurrency();
+  const [showSubscribe, setShowSubscribe] = useState(false);
 
   return (
     <header className="border-b bg-background/80 backdrop-blur-md sticky top-0 z-50 dark:border-border">
@@ -67,20 +74,18 @@ const Header = () => {
             </Toggle>
           </div>
           
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             <Link to="/category/bitcoin" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Bitcoin</Link>
             <Link to="/category/ethereum" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Ethereum</Link>
             <Link to="/category/defi" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">DeFi</Link>
             <Link to="/category/nfts" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">NFTs</Link>
             <Link to="/category/markets" className="story-link text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">Markets</Link>
-            <Button variant="outline" size="sm" className="hover-scale" asChild>
-              <Link to="/category/featured">Subscribe</Link>
+            <Button variant="outline" size="sm" className="hover-scale" onClick={() => setShowSubscribe(true)}>
+              Subscribe
             </Button>
             <ThemeToggle />
           </div>
           
-          {/* Mobile Theme Toggle and Menu */}
           <div className="flex items-center space-x-2 md:hidden">
             <ThemeToggle />
             <Button variant="ghost" size="icon" className="hover:bg-accent">
@@ -89,6 +94,15 @@ const Header = () => {
           </div>
         </nav>
       </div>
+
+      <Dialog open={showSubscribe} onOpenChange={setShowSubscribe}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-center">Subscribe to Our Newsletter</DialogTitle>
+          </DialogHeader>
+          <NewsletterSignup />
+        </DialogContent>
+      </Dialog>
     </header>
   );
 };
