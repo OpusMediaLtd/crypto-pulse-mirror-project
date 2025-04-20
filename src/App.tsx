@@ -12,6 +12,7 @@ import PostDetail from "./pages/PostDetail";
 import CategoryPosts from "./pages/CategoryPosts";
 import ArticlePage from "./pages/ArticlePage";
 import CryptoCasinos from "./pages/CryptoCasinos";
+import TermsOfService from "./pages/TermsOfService";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/category/:slug" element={<CategoryPosts />} />
               <Route path="/post/:slug" element={<ArticlePage />} />
               <Route path="/crypto-casinos" element={<CryptoCasinos />} />
+              <Route path="/terms" element={<TermsOfService />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
