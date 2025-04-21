@@ -12,41 +12,38 @@ export interface BannerAd {
   active: boolean;
 }
 
-// Betpanda.io banner images by variant
+// Use new uploaded banners by user (use closest fit for each slot)
+// Please ensure that the file paths below match your uploads!
 const BETPANDA_BANNERS = {
-  // Sidebar vertical banners
+  // Sidebar vertical banners (tall)
   sidebar: [
-    "/lovable-uploads/18e9c3aa-7497-4dc0-88ee-bad7c7c31365.png", // 160x600
-    "/lovable-uploads/edc12483-469d-4fd7-ab7d-99a74d89690a.png", // 300x600
+    "/lovable-uploads/a99dbc20-81f3-471c-9efd-2cf6b015e736.png", // 160x600 or closest vertical
+    "/lovable-uploads/68d39e31-3254-4ecf-8388-c3eab204c96d.png", // 300x600 or another tall
   ],
-  // Inline rectangle/square for article
+  // Inline rectangle/square for articles
   "article-inline": [
-    "/lovable-uploads/b8432540-8fbb-4168-9d77-2958c7024dc7.png", // 250x300 square
-    "/lovable-uploads/cd0c9951-c353-4516-9b5d-1ec71ee99efa.png", // 300x300
+    "/lovable-uploads/ec312f2d-f78c-43d9-85dd-b7bcf581f854.png", // 300x250, square, or close inline
+    "/lovable-uploads/0f810989-6d62-4986-b988-4d08ba8a3cdc.png", // another square or 250x300
   ],
-  // Wide banners for 'banner' (home/top/bottom/inline)
+  // Wide banners for top, bottom, inline, or home
   banner: [
-    "/lovable-uploads/12beb42b-e4e9-4e8a-8103-66400c117af4.png", // 320x50
-    "/lovable-uploads/5ae132d2-87aa-44c2-8d1a-ec684eea8ba4.png", // 320x100
-    "/lovable-uploads/538faf21-ef58-434a-be66-ffe894cffa16.png", // 444x136
-    "/lovable-uploads/237b0729-4945-48f7-bc32-c701474c97f1.png", // 728x90
-    "/lovable-uploads/b6057d56-4dd4-4535-aca2-74348b6463bb.png", // 760x80
-    "/lovable-uploads/b6057d56-4dd4-4535-aca2-74348b6463bb.png", // 760x80 backup for bigger spaces
-    "/lovable-uploads/b6057d56-4dd4-4535-aca2-74348b6463bb.png", // main wide
+    "/lovable-uploads/d150db8b-1d1a-429b-af21-1436d13e8d5e.png", // 320x100 or 728x90, e.g. main wide/top
+    "/lovable-uploads/c847c2f3-454e-4d6a-a0af-f57ff5a7262c.png", // another wide format
+    "/lovable-uploads/b646166d-848a-40be-8138-e79c6faaa408.png", // 444x136 or close
+    "/lovable-uploads/ac34bf63-f57e-489a-81b2-5b7aa477ffef.png", // 760x80 or similar
+    "/lovable-uploads/f65b37fd-105a-4b11-894a-54f72c401645.png", // another 728x90, 760x80 format
   ],
-  // Super-wide banner (for giant spaces, fallback)
+  // Super-wide/gigantic banner (fallback for biggest spaces)
   giant: [
-    "/lovable-uploads/b6057d56-4dd4-4535-aca2-74348b6463bb.png", // 1920x108
+    "/lovable-uploads/1a507e2d-45cb-4228-8377-3dba07cccc36.png", // 1920x108 or any giant/ultra-wide
   ],
 };
 
 const BETPANDA_LINK = "https://betpanda.io/";
 
 const getBetpandaBannerAd = (location: string): BannerAd => {
-  // Pick from the predefined banners for each location
   let image = "";
   if (location === "sidebar") {
-    // Cycle or random between sidebar banners
     const sidebarBanners = BETPANDA_BANNERS.sidebar;
     image = sidebarBanners[Math.floor(Math.random() * sidebarBanners.length)];
   } else if (location === "article-inline") {
@@ -55,12 +52,16 @@ const getBetpandaBannerAd = (location: string): BannerAd => {
   } else if (location === "banner") {
     const bannerBanners = BETPANDA_BANNERS.banner;
     image = bannerBanners[Math.floor(Math.random() * bannerBanners.length)];
+  } else if (location === "giant") {
+    const giantBanners = BETPANDA_BANNERS.giant;
+    image = giantBanners[Math.floor(Math.random() * giantBanners.length)];
   } else {
-    // Fallback to a wide banner
+    // Fallback to all banners
     const all = [
       ...BETPANDA_BANNERS.banner,
       ...BETPANDA_BANNERS.sidebar,
       ...BETPANDA_BANNERS["article-inline"],
+      ...BETPANDA_BANNERS.giant,
     ];
     image = all[Math.floor(Math.random() * all.length)];
   }
@@ -72,7 +73,7 @@ const getBetpandaBannerAd = (location: string): BannerAd => {
     link: BETPANDA_LINK,
     image,
     location,
-    active: true
+    active: true,
   };
 };
 
@@ -80,11 +81,11 @@ const getBetpandaBannerAd = (location: string): BannerAd => {
  * Always return Betpanda.io ad for all banner ad requests
  */
 export const getBannerAds = async (): Promise<BannerAd[]> => {
-  // Return Betpanda ad for all locations (could be expanded for different campaign logic)
+  // Return Betpanda ad for all main locations
   return [
     getBetpandaBannerAd("banner"),
     getBetpandaBannerAd("sidebar"),
-    getBetpandaBannerAd("article-inline")
+    getBetpandaBannerAd("article-inline"),
   ];
 };
 
@@ -100,5 +101,6 @@ export const trackBannerAdClick = async (adId: number): Promise<void> => {
 export default {
   getBannerAds,
   getRandomBannerAdForLocation,
-  trackBannerAdClick
+  trackBannerAdClick,
 };
+
