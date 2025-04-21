@@ -1,7 +1,7 @@
 
 import React from 'react';
+import { Badge } from '@/components/ui/badge';
 
-const BETPANDA_BANNER_IMAGE = "/lovable-uploads/6f6441e7-ae7a-4466-907f-7f6bace2ee41.png";
 const BETPANDA_BANNER_LINK = "https://betpanda.io/";
 
 interface BannerAdSpaceProps {
@@ -10,23 +10,31 @@ interface BannerAdSpaceProps {
 
 const BannerAdSpace = ({ message }: BannerAdSpaceProps) => (
   <div
-    className="w-full max-w-[444px] h-[136px] mx-auto mb-8 rounded-lg overflow-hidden cursor-pointer flex justify-center items-center"
+    className="w-full max-w-[444px] h-[88px] mx-auto mb-8 rounded-lg overflow-hidden cursor-pointer flex justify-between items-center px-6 bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800 dark:to-slate-900 border border-primary/10 shadow transition hover:shadow-md"
     style={{
-      width: 444, 
-      height: 136, 
-      minHeight: 100,
-      background: "#141e2a"
+      width: 444,
+      height: 88,
+      minHeight: 60,
     }}
     onClick={() => window.open(BETPANDA_BANNER_LINK, '_blank', 'noopener,noreferrer')}
     aria-label="Betpanda 100% Casino Bonus"
   >
-    <img
-      src={BETPANDA_BANNER_IMAGE}
-      alt="Betpanda 100% Casino Bonus up to 1 BTC - Regional Sponsor of the Argentina National Team"
-      className="object-cover w-full h-full"
-      style={{ width: "100%", height: "100%" }}
-      draggable={false}
-    />
+    <div className="flex flex-col justify-center">
+      <span className="font-semibold text-lg text-primary dark:text-white">
+        Betpanda.io - #1 Crypto Casino
+      </span>
+      <span className="text-sm text-muted-foreground mt-1">
+        100% Bonus up to 1 BTC · Regional Sponsor of Team Argentina
+      </span>
+    </div>
+    <div className="flex flex-col items-end">
+      <Badge variant="outline" className="bg-black/50 text-white border-white/20 text-xs mb-1">
+        Sponsored
+      </Badge>
+      <span className="text-xs text-primary underline underline-offset-2 mt-1">
+        Play Now
+      </span>
+    </div>
   </div>
 );
 
