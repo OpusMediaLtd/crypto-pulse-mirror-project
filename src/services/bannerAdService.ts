@@ -1,4 +1,3 @@
-
 import { WORDPRESS_BANNER_ADS_ENDPOINT } from './wordpress/config';
 import { fetchWithCache } from './wordpress/utils';
 
@@ -15,10 +14,9 @@ export interface BannerAd {
 // Use new uploaded banners by user (use closest fit for each slot)
 // Please ensure that the file paths below match your uploads!
 const BETPANDA_BANNERS = {
-  // Sidebar vertical banners (tall)
+  // Sidebar vertical banners (tall) – use ONLY the user's supplied 600x300 vertical banner
   sidebar: [
-    "/lovable-uploads/a99dbc20-81f3-471c-9efd-2cf6b015e736.png", // 160x600 or closest vertical
-    "/lovable-uploads/68d39e31-3254-4ecf-8388-c3eab204c96d.png", // 300x600 or another tall
+    "/lovable-uploads/aaef47ed-b85e-47e2-ad5e-31eecf58af0d.png", // 600x300 tall
   ],
   // Inline rectangle/square for articles
   "article-inline": [
