@@ -47,12 +47,23 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
     }
   };
 
+  if (!bannerAd) {
+    return (
+      <div className={`${getAdStyles()} bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border dark:border-slate-800 rounded-lg mb-8 flex items-center justify-center`}>
+        <div className="text-center">
+          <Package className="h-5 w-5 text-primary dark:text-gray-400 mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground dark:text-gray-400">{message}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div 
       className={`${getAdStyles()} bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border dark:border-slate-800 rounded-lg mb-8 cursor-pointer`}
       onClick={handleAdClick}
     >
-      {bannerAd && bannerAd.image && !imgError ? (
+      {bannerAd.image && !imgError ? (
         <div className="h-full relative overflow-hidden rounded-lg">
           <img 
             src={bannerAd.image} 

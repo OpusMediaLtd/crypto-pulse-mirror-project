@@ -38,9 +38,7 @@ const Layout = ({
     <div className="min-h-screen bg-background text-foreground dark:bg-slate-950 dark:text-white">
       <SEOHead title={title} description={description} ogImage={ogImage} ogType={ogType} canonical={canonical} />
       <Header />
-      <Suspense fallback={null}>
-        <BannerAd />
-      </Suspense>
+      <BannerAd />
       <Suspense fallback={null}>
         <RollingTicker />
       </Suspense>

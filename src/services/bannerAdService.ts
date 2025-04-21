@@ -78,7 +78,7 @@ const getBetpandaBannerAd = (location: string): BannerAd => {
 };
 
 /**
- * Always return Betpanda.io ad for all banner ad requests
+ * Get all banner ads
  */
 export const getBannerAds = async (): Promise<BannerAd[]> => {
   // Return Betpanda ad for all main locations
@@ -86,10 +86,15 @@ export const getBannerAds = async (): Promise<BannerAd[]> => {
     getBetpandaBannerAd("banner"),
     getBetpandaBannerAd("sidebar"),
     getBetpandaBannerAd("article-inline"),
+    getBetpandaBannerAd("giant"),
   ];
 };
 
+/**
+ * Get a random banner ad for a specific location
+ */
 export const getRandomBannerAdForLocation = async (location: string): Promise<BannerAd | null> => {
+  // Always return a Betpanda ad
   return getBetpandaBannerAd(location);
 };
 
@@ -103,4 +108,3 @@ export default {
   getRandomBannerAdForLocation,
   trackBannerAdClick,
 };
-

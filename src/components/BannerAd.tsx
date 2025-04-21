@@ -33,6 +33,31 @@ const BannerAd = () => {
     return null;
   }
 
+  // Always display an image when available
+  if (bannerAd.image && !imgError) {
+    return (
+      <div 
+        className="w-full cursor-pointer bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800 dark:to-slate-900"
+        onClick={handleAdClick}
+      >
+        <div className="container mx-auto px-4 py-2 relative">
+          <img 
+            src={bannerAd.image} 
+            alt={bannerAd.title}
+            className="w-full h-auto object-contain max-h-24"
+            onError={() => setImgError(true)}
+          />
+          <div className="absolute top-2 left-4 flex items-center space-x-2">
+            <Badge variant="outline" className="bg-background/80 dark:bg-slate-900/80 text-xs">
+              Sponsored
+            </Badge>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Fallback to text banner if image fails to load
   return (
     <div 
       className="w-full bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border-y dark:border-slate-800 cursor-pointer"
