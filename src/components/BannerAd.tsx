@@ -1,108 +1,28 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Package } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import bannerAdService from '@/services/bannerAdService';
-import { toast } from 'sonner';
 
-// Set the banner to thin format: 444px width and 88px height
+// Styling constants
+const TEXT_HIGHLIGHT = "bg-white text-[#7E69AB] rounded-md px-2 py-0.5 font-bold mx-1";
 const BANNER_WIDTH = 444;
 const BANNER_HEIGHT = 88;
 
 const BannerAd = () => {
-  const [imgError, setImgError] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
-
-  const { data: bannerAd, isLoading, error } = useQuery({
-    queryKey: ['banner-ad', 'banner'],
-    queryFn: () => bannerAdService.getRandomBannerAdForLocation('banner'),
-    staleTime: 5 * 60 * 1000, // Banner ads are fresh for 5 minutes
-  });
-
-  useEffect(() => {
-    setImgError(false);
-    setImgLoaded(false);
-    console.log("BannerAd component loaded with data:", bannerAd);
-  }, [bannerAd]);
-
   const handleAdClick = () => {
-    if (bannerAd) {
-      bannerAdService.trackBannerAdClick(bannerAd.id);
-      window.open(bannerAd.link, '_blank', 'noopener,noreferrer');
-    }
+    window.open("https://betpanda.io/", '_blank', 'noopener,noreferrer');
+    console.log("Banner ad clicked, redirecting to Betpanda.io");
   };
 
-  if (isLoading) {
-    console.log("BannerAd is loading...");
-    return (
-      <div
-        className="w-full mx-auto flex items-center justify-center bg-gray-100 dark:bg-slate-800 rounded-lg"
-        style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 60 }}
-      >
-        <p className="text-muted-foreground">Loading ad...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    console.error("BannerAd error:", error);
-    return null;
-  }
-
-  if (!bannerAd) {
-    console.log("No banner ad data available");
-    return null;
-  }
-
-  console.log("Rendering banner with image:", bannerAd.image);
-
-  if (bannerAd.image && !imgError) {
-    return (
-      <div
-        className="w-full mx-auto relative rounded-lg cursor-pointer overflow-hidden"
-        onClick={handleAdClick}
-        style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 60 }}
-      >
-        <div className="absolute -top-3 left-4 z-10">
-          <Badge className="bg-gray-500 hover:bg-gray-500 text-white text-xs py-0.5 px-2 rounded">
-            Sponsored
-          </Badge>
-        </div>
-        
-        {!imgLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-slate-800">
-            <p className="text-muted-foreground">Loading banner...</p>
-          </div>
-        )}
-        
-        <div className="relative w-full h-full flex items-center justify-center">
-          <img
-            src={bannerAd.image}
-            alt={bannerAd.title}
-            className={`object-contain w-full h-full ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
-            style={{ width: '100%', height: '100%', transition: 'opacity 0.3s ease' }}
-            onLoad={() => {
-              console.log("Banner image loaded successfully:", bannerAd.image);
-              setImgLoaded(true);
-            }}
-            onError={() => {
-              console.error("Error loading banner image:", bannerAd.image);
-              setImgError(true);
-              toast.error("Failed to load banner image");
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // Fallback to simple content if fails
   return (
     <div
-      className="w-full mx-auto relative cursor-pointer"
+      className="w-full mx-auto relative cursor-pointer rounded-lg shadow-lg overflow-hidden border border-[#e5deff] mb-8"
       onClick={handleAdClick}
-      style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 60 }}
+      style={{ 
+        maxWidth: BANNER_WIDTH, 
+        height: BANNER_HEIGHT,
+        background: "linear-gradient(90deg, #e5deff 0%, #d6bcfa 100%)"
+      }}
+      aria-label="Betpanda Casino Sponsored Content"
     >
       <div className="absolute -top-3 left-4 z-10">
         <Badge className="bg-gray-500 hover:bg-gray-500 text-white text-xs py-0.5 px-2 rounded">
@@ -110,13 +30,13 @@ const BannerAd = () => {
         </Badge>
       </div>
       
-      <div className="w-full h-full bg-gray-100 dark:bg-slate-800 rounded-lg flex items-center justify-center px-6">
-        <div className="flex items-center space-x-2">
-          <Package className="h-5 w-5 text-primary dark:text-gray-400" />
-          <span className="text-sm text-muted-foreground dark:text-gray-400">
-            {bannerAd.content || bannerAd.title}
-          </span>
-        </div>
+      <div className="flex flex-col h-full w-full items-center justify-center px-6 text-center select-none">
+        <span className="font-extrabold text-2xl sm:text-xl text-[#403E43] leading-snug tracking-tight">
+          <span className={`${TEXT_HIGHLIGHT}`}>Betpanda.io</span> #1 Crypto Casino
+        </span>
+        <span className="text-sm sm:text-xs text-[#7E69AB] mt-2 font-medium">
+          100% Bonus up to 1 BTC&nbsp;·&nbsp;Instant Crypto Withdrawals&nbsp;·&nbsp;Regional Sponsor of Team Argentina
+        </span>
       </div>
     </div>
   );
