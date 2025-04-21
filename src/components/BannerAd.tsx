@@ -12,7 +12,7 @@ const BANNER_HEIGHT = 136;
 const BannerAd = () => {
   const [imgError, setImgError] = useState(false);
 
-  const { data: bannerAd } = useQuery({
+  const { data: bannerAd, isLoading, error } = useQuery({
     queryKey: ['banner-ad', 'banner'],
     queryFn: () => bannerAdService.getRandomBannerAdForLocation('banner'),
     staleTime: 5 * 60 * 1000, // Banner ads are fresh for 5 minutes
@@ -20,6 +20,7 @@ const BannerAd = () => {
 
   useEffect(() => {
     setImgError(false);
+    console.log("BannerAd component loaded with data:", bannerAd);
   }, [bannerAd]);
 
   const handleAdClick = () => {
@@ -29,9 +30,29 @@ const BannerAd = () => {
     }
   };
 
-  if (!bannerAd) {
+  if (isLoading) {
+    console.log("BannerAd is loading...");
+    return (
+      <div
+        className="w-full mx-auto flex items-center justify-center bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800 dark:to-slate-900 rounded-lg"
+        style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 100 }}
+      >
+        <p className="text-muted-foreground">Loading ad...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    console.error("BannerAd error:", error);
     return null;
   }
+
+  if (!bannerAd) {
+    console.log("No banner ad data available");
+    return null;
+  }
+
+  console.log("Rendering banner with image:", bannerAd.image);
 
   if (bannerAd.image && !imgError) {
     return (
@@ -46,7 +67,10 @@ const BannerAd = () => {
             alt={bannerAd.title}
             className="object-contain w-full h-full"
             style={{ width: '100%', height: '100%' }}
-            onError={() => setImgError(true)}
+            onError={() => {
+              console.error("Error loading banner image:", bannerAd.image);
+              setImgError(true);
+            }}
           />
           <div className="absolute top-3 left-3 flex items-center space-x-2 z-10">
             <Badge variant="outline" className="bg-black/50 text-white border-white/20 text-xs">

@@ -1,3 +1,4 @@
+
 import { WORDPRESS_BANNER_ADS_ENDPOINT } from './wordpress/config';
 import { fetchWithCache } from './wordpress/utils';
 
@@ -51,6 +52,7 @@ const getBetpandaBannerAd = (location: string): BannerAd => {
     image = all[Math.floor(Math.random() * all.length)];
   }
 
+  // Always set an active state to true to ensure visibility
   return {
     id: 9999,
     title: "Betpanda.io – #1 Crypto Casino",
@@ -80,7 +82,10 @@ export const getBannerAds = async (): Promise<BannerAd[]> => {
  */
 export const getRandomBannerAdForLocation = async (location: string): Promise<BannerAd | null> => {
   // Always return a Betpanda ad
-  return getBetpandaBannerAd(location);
+  console.log(`Getting banner ad for location: ${location}`);
+  const bannerAd = getBetpandaBannerAd(location);
+  console.log(`Banner ad returned:`, bannerAd);
+  return bannerAd;
 };
 
 export const trackBannerAdClick = async (adId: number): Promise<void> => {

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Package } from 'lucide-react';
@@ -12,7 +13,7 @@ interface AdSpaceProps {
 const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => {
   const [imgError, setImgError] = useState(false);
 
-  const { data: bannerAd } = useQuery({
+  const { data: bannerAd, isLoading } = useQuery({
     queryKey: ['banner-ad', variant],
     queryFn: () => bannerAdService.getRandomBannerAdForLocation(variant),
     staleTime: 5 * 60 * 1000,
@@ -20,7 +21,8 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
 
   useEffect(() => {
     setImgError(false);
-  }, [bannerAd]);
+    console.log(`AdSpace (${variant}) loaded with data:`, bannerAd);
+  }, [bannerAd, variant]);
 
   const getAdStyles = () => {
     switch (variant) {
@@ -42,7 +44,20 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
     }
   };
 
+  if (isLoading) {
+    console.log(`AdSpace (${variant}) is loading...`);
+    return (
+      <div className={`${getAdStyles()} bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border dark:border-slate-800 rounded-lg mb-8 flex items-center justify-center`}>
+        <div className="text-center">
+          <Package className="h-5 w-5 text-primary dark:text-gray-400 mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground dark:text-gray-400">Loading ad...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!bannerAd) {
+    console.log(`No banner ad data for AdSpace (${variant})`);
     return (
       <div className={`${getAdStyles()} bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border dark:border-slate-800 rounded-lg mb-8 flex items-center justify-center`}>
         <div className="text-center">
@@ -52,6 +67,8 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
       </div>
     );
   }
+
+  console.log(`Rendering ${variant} ad with image:`, bannerAd.image);
 
   if (variant === "sidebar") {
     return (
@@ -66,11 +83,13 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
               src={bannerAd.image}
               alt={bannerAd.title}
               className="w-full h-full object-contain"
-              onError={() => setImgError(true)}
+              onError={() => {
+                console.error(`Error loading ${variant} ad image:`, bannerAd.image);
+                setImgError(true);
+              }}
               style={{ width: "100%", height: "100%" }}
             />
             <div className="absolute top-3 left-3 flex items-center space-x-2 z-10">
-              <Package className="h-4 w-4 text-white" />
               <Badge variant="outline" className="bg-black/50 text-white border-white/20">
                 Sponsored
               </Badge>
@@ -104,10 +123,12 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
               alt={bannerAd.title}
               className="object-contain w-full h-full"
               style={{ width: '100%', height: '100%' }}
-              onError={() => setImgError(true)}
+              onError={() => {
+                console.error(`Error loading ${variant} ad image:`, bannerAd.image);
+                setImgError(true);
+              }}
             />
             <div className="absolute top-3 left-3 flex items-center space-x-2 z-10">
-              <Package className="h-4 w-4 text-white" />
               <Badge variant="outline" className="bg-black/50 text-white border-white/20">
                 Sponsored
               </Badge>
@@ -138,10 +159,12 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
             src={bannerAd.image}
             alt={bannerAd.title}
             className="w-full h-full object-cover"
-            onError={() => setImgError(true)}
+            onError={() => {
+              console.error(`Error loading ${variant} ad image:`, bannerAd.image);
+              setImgError(true);
+            }}
           />
           <div className="absolute top-3 left-3 flex items-center space-x-2">
-            <Package className="h-4 w-4 text-white" />
             <Badge variant="outline" className="bg-black/50 text-white border-white/20">
               Sponsored
             </Badge>
