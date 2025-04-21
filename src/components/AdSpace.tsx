@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Package } from 'lucide-react';
@@ -10,6 +9,9 @@ interface AdSpaceProps {
   variant: 'banner' | 'sidebar' | 'article-inline';
   message?: string;
 }
+
+const BETPANDA_BANNER_IMAGE = "/lovable-uploads/6f6441e7-ae7a-4466-907f-7f6bace2ee41.png";
+const BETPANDA_BANNER_LINK = "https://betpanda.io/";
 
 const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => {
   const [imgError, setImgError] = useState(false);
@@ -73,6 +75,30 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
 
   console.log(`Rendering ${variant} ad with image:`, bannerAd.image);
 
+  if (variant === "banner") {
+    return (
+      <div
+        className="w-full max-w-[444px] h-[136px] mx-auto mb-8 rounded-lg overflow-hidden cursor-pointer flex justify-center items-center"
+        style={{
+          width: 444, 
+          height: 136, 
+          minHeight: 100,
+          background: "#141e2a" // fallback bg to blend with image
+        }}
+        onClick={() => window.open(BETPANDA_BANNER_LINK, '_blank', 'noopener,noreferrer')}
+        aria-label="Betpanda 100% Casino Bonus"
+      >
+        <img
+          src={BETPANDA_BANNER_IMAGE}
+          alt="Betpanda 100% Casino Bonus up to 1 BTC - Regional Sponsor of the Argentina National Team"
+          className="object-cover w-full h-full"
+          style={{ width: "100%", height: "100%" }}
+          draggable={false}
+        />
+      </div>
+    );
+  }
+
   if (variant === "sidebar") {
     return (
       <div
@@ -114,59 +140,7 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
               <Package className="h-5 w-5 text-primary dark:text-gray-400" />
               <Badge variant="outline" className="bg-background/50 dark:bg-slate-900/50">
                 Sponsored
-              </Badge>
-            </div>
-            <span className="text-sm text-muted-foreground dark:text-gray-400">
-              {bannerAd.content || bannerAd.title}
-            </span>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (variant === "banner") {
-    return (
-      <div
-        className={`${getAdStyles()} bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 border dark:border-slate-800 rounded-lg mb-8 cursor-pointer overflow-hidden relative`}
-        onClick={handleAdClick}
-        style={{ maxWidth: 444, height: 136, minHeight: 100 }}
-      >
-        {!imgLoaded && !imgError && (
-          <div className="absolute inset-0 flex items-center justify-center z-10">
-            <p className="text-muted-foreground">Loading ad...</p>
-          </div>
-        )}
-        {bannerAd.image && !imgError ? (
-          <div className="relative w-full h-full flex items-center justify-center">
-            <img
-              src={bannerAd.image}
-              alt={bannerAd.title}
-              className={`object-contain w-full h-full ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
-              style={{ width: '100%', height: '100%', transition: 'opacity 0.3s ease' }}
-              onLoad={() => {
-                console.log(`${variant} image loaded successfully:`, bannerAd.image);
-                setImgLoaded(true);
-              }}
-              onError={() => {
-                console.error(`Error loading ${variant} ad image:`, bannerAd.image);
-                setImgError(true);
-                toast.error(`Failed to load ${variant} ad image`);
-              }}
-            />
-            <div className="absolute top-3 left-3 flex items-center space-x-2 z-10">
-              <Badge variant="outline" className="bg-black/50 text-white border-white/20">
-                Sponsored
-              </Badge>
-            </div>
-          </div>
-        ) : (
-          <div className="h-full w-full flex flex-col items-center justify-center">
-            <div className="flex items-center space-x-2 mb-2">
-              <Package className="h-5 w-5 text-primary dark:text-gray-400" />
-              <Badge variant="outline" className="bg-background/50 dark:bg-slate-900/50">
-                Sponsored
-              </Badge>
+              Badge>
             </div>
             <span className="text-sm text-muted-foreground dark:text-gray-400">
               {bannerAd.content || bannerAd.title}
