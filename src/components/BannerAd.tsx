@@ -1,42 +1,83 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
-
-// Styling constants
-const TEXT_HIGHLIGHT = "bg-white text-[#7E69AB] rounded-md px-2 py-0.5 font-bold mx-1";
-const BANNER_WIDTH = 444;
-const BANNER_HEIGHT = 88;
+import { Package } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import bannerAdService from '@/services/bannerAdService';
 
 const BannerAd = () => {
+  const [imgError, setImgError] = useState(false);
+  
+  const { data: bannerAd } = useQuery({
+    queryKey: ['banner-ad', 'banner'],
+    queryFn: () => bannerAdService.getRandomBannerAdForLocation('banner'),
+    staleTime: 5 * 60 * 1000, // Banner ads are fresh for 5 minutes
+  });
+
+  // Reset image error state when ad changes
+  useEffect(() => {
+    setImgError(false);
+  }, [bannerAd]);
+
   const handleAdClick = () => {
-    window.open("https://betpanda.io/", '_blank', 'noopener,noreferrer');
-    console.log("Banner ad clicked, redirecting to Betpanda.io");
+    if (bannerAd) {
+      // Track the click
+      bannerAdService.trackBannerAdClick(bannerAd.id);
+      
+      // Open the link in a new tab
+      window.open(bannerAd.link, '_blank', 'noopener,noreferrer');
+    }
   };
 
-  return (
-    <div
-      className="w-full mx-auto relative cursor-pointer rounded-lg shadow-lg overflow-hidden border border-[#e5deff] mb-8"
-      onClick={handleAdClick}
-      style={{ 
-        maxWidth: BANNER_WIDTH, 
-        height: BANNER_HEIGHT,
-        background: "linear-gradient(90deg, #e5deff 0%, #d6bcfa 100%)"
-      }}
-      aria-label="Betpanda Casino Sponsored Content"
-    >
-      <div className="absolute -top-3 left-4 z-10">
-        <Badge className="bg-gray-500 hover:bg-gray-500 text-white text-xs py-0.5 px-2 rounded">
-          Sponsored
-        </Badge>
+  if (!bannerAd) {
+    return null;
+  }
+
+  // Always display an image when available
+  if (bannerAd.image && !imgError) {
+    return (
+      <div 
+        className="w-full cursor-pointer bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800 dark:to-slate-900"
+        onClick={handleAdClick}
+      >
+        <div className="container mx-auto px-4 py-2 relative">
+          <img 
+            src={bannerAd.image} 
+            alt={bannerAd.title}
+            className="w-full h-auto object-contain max-h-24"
+            onError={() => setImgError(true)}
+          />
+          <div className="absolute top-2 left-4 flex items-center space-x-2">
+            <Badge variant="outline" className="bg-background/80 dark:bg-slate-900/80 text-xs">
+              Sponsored
+            </Badge>
+          </div>
+        </div>
       </div>
-      
-      <div className="flex flex-col h-full w-full items-center justify-center px-6 text-center select-none">
-        <span className="font-extrabold text-2xl sm:text-xl text-[#403E43] leading-snug tracking-tight">
-          <span className={`${TEXT_HIGHLIGHT}`}>Betpanda.io</span> #1 Crypto Casino
-        </span>
-        <span className="text-sm sm:text-xs text-[#7E69AB] mt-2 font-medium">
-          100% Bonus up to 1 BTC&nbsp;·&nbsp;Instant Crypto Withdrawals&nbsp;·&nbsp;Regional Sponsor of Team Argentina
-        </span>
+    );
+  }
+  
+  // Fallback to text banner if image fails to load
+  return (
+    <div 
+      className="w-full bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border-y dark:border-slate-800 cursor-pointer"
+      onClick={handleAdClick}
+    >
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Package className="h-5 w-5 text-primary dark:text-gray-400" />
+            <Badge variant="outline" className="bg-background/50 dark:bg-slate-900/50">
+              Sponsored
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground dark:text-gray-400">
+            {bannerAd.content || bannerAd.title}
+          </p>
+          <span className="text-sm font-medium text-primary hover:text-primary/80 dark:text-white dark:hover:text-gray-300 transition-colors">
+            Learn More →
+          </span>
+        </div>
       </div>
     </div>
   );
