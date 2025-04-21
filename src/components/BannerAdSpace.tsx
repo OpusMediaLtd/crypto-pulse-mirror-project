@@ -9,31 +9,26 @@ interface BannerAdSpaceProps {
 }
 
 const BannerAdSpace = ({ message }: BannerAdSpaceProps) => (
-  <div
-    className="w-full max-w-[444px] h-[88px] mx-auto mb-8 rounded-lg overflow-hidden cursor-pointer flex justify-between items-center px-6 bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800 dark:to-slate-900 border border-primary/10 shadow transition hover:shadow-md"
-    style={{
-      width: 444,
-      height: 88,
-      minHeight: 60,
-    }}
+  <div 
+    className="w-full max-w-[444px] h-[88px] mx-auto mb-8 relative cursor-pointer"
     onClick={() => window.open(BETPANDA_BANNER_LINK, '_blank', 'noopener,noreferrer')}
-    aria-label="Betpanda 100% Casino Bonus"
+    aria-label="Betpanda Casino Sponsored Content"
   >
-    <div className="flex flex-col justify-center">
-      <span className="font-semibold text-lg text-primary dark:text-white">
-        Betpanda.io - #1 Crypto Casino
-      </span>
-      <span className="text-sm text-muted-foreground mt-1">
-        100% Bonus up to 1 BTC · Regional Sponsor of Team Argentina
-      </span>
-    </div>
-    <div className="flex flex-col items-end">
-      <Badge variant="outline" className="bg-black/50 text-white border-white/20 text-xs mb-1">
+    <div className="absolute -top-3 left-4 z-10">
+      <Badge className="bg-gray-500 hover:bg-gray-500 text-white text-xs py-0.5 px-2 rounded">
         Sponsored
       </Badge>
-      <span className="text-xs text-primary underline underline-offset-2 mt-1">
-        Play Now
-      </span>
+    </div>
+    
+    <div className="w-full h-full bg-gray-100 dark:bg-slate-800 rounded-lg flex items-center justify-center px-6">
+      <div className="flex flex-col items-center justify-center text-center">
+        <span className="font-semibold text-lg text-primary dark:text-white">
+          Betpanda.io - #1 Crypto Casino
+        </span>
+        <span className="text-sm text-muted-foreground">
+          100% Bonus up to 1 BTC · Regional Sponsor of Team Argentina
+        </span>
+      </div>
     </div>
   </div>
 );

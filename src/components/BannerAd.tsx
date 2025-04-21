@@ -37,7 +37,7 @@ const BannerAd = () => {
     console.log("BannerAd is loading...");
     return (
       <div
-        className="w-full mx-auto flex items-center justify-center bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800 dark:to-slate-900 rounded-lg"
+        className="w-full mx-auto flex items-center justify-center bg-gray-100 dark:bg-slate-800 rounded-lg"
         style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 60 }}
       >
         <p className="text-muted-foreground">Loading ad...</p>
@@ -60,15 +60,22 @@ const BannerAd = () => {
   if (bannerAd.image && !imgError) {
     return (
       <div
-        className="w-full mx-auto flex items-center justify-center bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800 dark:to-slate-900 rounded-lg cursor-pointer relative overflow-hidden"
+        className="w-full mx-auto relative rounded-lg cursor-pointer overflow-hidden"
         onClick={handleAdClick}
         style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 60 }}
       >
+        <div className="absolute -top-3 left-4 z-10">
+          <Badge className="bg-gray-500 hover:bg-gray-500 text-white text-xs py-0.5 px-2 rounded">
+            Sponsored
+          </Badge>
+        </div>
+        
         {!imgLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-slate-800">
             <p className="text-muted-foreground">Loading banner...</p>
           </div>
         )}
+        
         <div className="relative w-full h-full flex items-center justify-center">
           <img
             src={bannerAd.image}
@@ -85,11 +92,6 @@ const BannerAd = () => {
               toast.error("Failed to load banner image");
             }}
           />
-          <div className="absolute top-2 left-2 flex items-center space-x-2 z-10">
-            <Badge variant="outline" className="bg-black/50 text-white border-white/20 text-xs">
-              Sponsored
-            </Badge>
-          </div>
         </div>
       </div>
     );
@@ -98,18 +100,23 @@ const BannerAd = () => {
   // Fallback to simple content if fails
   return (
     <div
-      className="w-full bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border-y dark:border-slate-800 cursor-pointer flex items-center justify-center rounded-lg"
+      className="w-full mx-auto relative cursor-pointer"
       onClick={handleAdClick}
-      style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 60, overflow: 'hidden' }}
+      style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 60 }}
     >
-      <div className="flex items-center space-x-2">
-        <Package className="h-5 w-5 text-primary dark:text-gray-400" />
-        <Badge variant="outline" className="bg-background/50 dark:bg-slate-900/50">
+      <div className="absolute -top-3 left-4 z-10">
+        <Badge className="bg-gray-500 hover:bg-gray-500 text-white text-xs py-0.5 px-2 rounded">
           Sponsored
         </Badge>
-        <span className="text-sm text-muted-foreground dark:text-gray-400">
-          {bannerAd.content || bannerAd.title}
-        </span>
+      </div>
+      
+      <div className="w-full h-full bg-gray-100 dark:bg-slate-800 rounded-lg flex items-center justify-center px-6">
+        <div className="flex items-center space-x-2">
+          <Package className="h-5 w-5 text-primary dark:text-gray-400" />
+          <span className="text-sm text-muted-foreground dark:text-gray-400">
+            {bannerAd.content || bannerAd.title}
+          </span>
+        </div>
       </div>
     </div>
   );
