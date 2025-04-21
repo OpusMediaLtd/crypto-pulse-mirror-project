@@ -6,9 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import bannerAdService from '@/services/bannerAdService';
 import { toast } from 'sonner';
 
-// Show the banner at its intended dimensions: 444x136
+// Set the banner to thin format: 444px width and 88px height
 const BANNER_WIDTH = 444;
-const BANNER_HEIGHT = 136;
+const BANNER_HEIGHT = 88;
 
 const BannerAd = () => {
   const [imgError, setImgError] = useState(false);
@@ -38,7 +38,7 @@ const BannerAd = () => {
     return (
       <div
         className="w-full mx-auto flex items-center justify-center bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800 dark:to-slate-900 rounded-lg"
-        style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 100 }}
+        style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 60 }}
       >
         <p className="text-muted-foreground">Loading ad...</p>
       </div>
@@ -62,7 +62,7 @@ const BannerAd = () => {
       <div
         className="w-full mx-auto flex items-center justify-center bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800 dark:to-slate-900 rounded-lg cursor-pointer relative overflow-hidden"
         onClick={handleAdClick}
-        style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 100 }}
+        style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 60 }}
       >
         {!imgLoaded && (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -85,7 +85,7 @@ const BannerAd = () => {
               toast.error("Failed to load banner image");
             }}
           />
-          <div className="absolute top-3 left-3 flex items-center space-x-2 z-10">
+          <div className="absolute top-2 left-2 flex items-center space-x-2 z-10">
             <Badge variant="outline" className="bg-black/50 text-white border-white/20 text-xs">
               Sponsored
             </Badge>
@@ -100,7 +100,7 @@ const BannerAd = () => {
     <div
       className="w-full bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border-y dark:border-slate-800 cursor-pointer flex items-center justify-center rounded-lg"
       onClick={handleAdClick}
-      style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 100, overflow: 'hidden' }}
+      style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 60, overflow: 'hidden' }}
     >
       <div className="flex items-center space-x-2">
         <Package className="h-5 w-5 text-primary dark:text-gray-400" />
