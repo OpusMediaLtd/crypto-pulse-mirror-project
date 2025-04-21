@@ -11,19 +11,15 @@ export interface BannerAd {
   active: boolean;
 }
 
-// Use new uploaded banners by user (use closest fit for each slot)
-// Please ensure that the file paths below match your uploads!
 const BETPANDA_BANNERS = {
-  // Sidebar vertical banners (tall) – use ONLY the user's supplied 600x300 vertical banner
   sidebar: [
-    "/lovable-uploads/aaef47ed-b85e-47e2-ad5e-31eecf58af0d.png", // 600x300 tall
+    "/lovable-uploads/aaef47ed-b85e-47e2-ad5e-31eecf58af0d.png", // Existing 300x600 Betpanda
+    "/lovable-uploads/4a72cbaa-07d6-4691-b5b3-b5aefed216cc.png", // User-uploaded 300x600 alternative
   ],
-  // Inline rectangle/square for articles
   "article-inline": [
     "/lovable-uploads/ec312f2d-f78c-43d9-85dd-b7bcf581f854.png", // 300x250, square, or close inline
     "/lovable-uploads/0f810989-6d62-4986-b988-4d08ba8a3cdc.png", // another square or 250x300
   ],
-  // Wide banners for top, bottom, inline, or home
   banner: [
     "/lovable-uploads/d150db8b-1d1a-429b-af21-1436d13e8d5e.png", // 320x100 or 728x90, e.g. main wide/top
     "/lovable-uploads/c847c2f3-454e-4d6a-a0af-f57ff5a7262c.png", // another wide format
@@ -31,7 +27,6 @@ const BETPANDA_BANNERS = {
     "/lovable-uploads/ac34bf63-f57e-489a-81b2-5b7aa477ffef.png", // 760x80 or similar
     "/lovable-uploads/f65b37fd-105a-4b11-894a-54f72c401645.png", // another 728x90, 760x80 format
   ],
-  // Super-wide/gigantic banner (fallback for biggest spaces)
   giant: [
     "/lovable-uploads/1a507e2d-45cb-4228-8377-3dba07cccc36.png", // 1920x108 or any giant/ultra-wide
   ],
@@ -54,7 +49,6 @@ const getBetpandaBannerAd = (location: string): BannerAd => {
     const giantBanners = BETPANDA_BANNERS.giant;
     image = giantBanners[Math.floor(Math.random() * giantBanners.length)];
   } else {
-    // Fallback to all banners
     const all = [
       ...BETPANDA_BANNERS.banner,
       ...BETPANDA_BANNERS.sidebar,

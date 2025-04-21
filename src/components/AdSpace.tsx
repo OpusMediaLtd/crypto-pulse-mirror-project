@@ -15,10 +15,9 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
   const { data: bannerAd } = useQuery({
     queryKey: ['banner-ad', variant],
     queryFn: () => bannerAdService.getRandomBannerAdForLocation(variant),
-    staleTime: 5 * 60 * 1000, // Banner ads are fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
-  // Reset image error state when ad changes
   useEffect(() => {
     setImgError(false);
   }, [bannerAd]);
@@ -38,10 +37,7 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
 
   const handleAdClick = () => {
     if (bannerAd) {
-      // Track the click
       bannerAdService.trackBannerAdClick(bannerAd.id);
-
-      // Open the link in a new tab
       window.open(bannerAd.link, '_blank', 'noopener,noreferrer');
     }
   };
@@ -57,7 +53,6 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
     );
   }
 
-  // --- SIDEBAR: Special case for exact banner layout without bottom text
   if (variant === "sidebar") {
     return (
       <div
@@ -89,16 +84,12 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
                 Sponsored
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground dark:text-gray-400 text-center">
-              {bannerAd ? (bannerAd.content || bannerAd.title) : message}
-            </p>
           </div>
         )}
       </div>
     );
   }
 
-  // --- DEFAULT: banner/article-inline, keep regular format with bottom overlay
   return (
     <div
       className={`${getAdStyles()} bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border dark:border-slate-800 rounded-lg mb-8 cursor-pointer`}
