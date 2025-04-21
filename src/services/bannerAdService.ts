@@ -1,4 +1,3 @@
-
 import { WORDPRESS_BANNER_ADS_ENDPOINT } from './wordpress/config';
 import { fetchWithCache } from './wordpress/utils';
 
@@ -12,44 +11,45 @@ export interface BannerAd {
   active: boolean;
 }
 
-const BETPANDA_BANNERS = {
-  sidebar: [
-    "/lovable-uploads/595a2250-2aed-4929-845f-0b1e66ebe4b0.png",
-  ],
-  "article-inline": [
-    "/lovable-uploads/ec312f2d-f78c-43d9-85dd-b7bcf581f854.png",
-    "/lovable-uploads/0f810989-6d62-4986-b988-4d08ba8a3cdc.png",
-  ],
-  banner: [
-    "/lovable-uploads/b3aed9bf-1a43-44f3-a74b-05f48e5fb0d1.png",
-  ],
-  giant: [
-    "/lovable-uploads/1a507e2d-45cb-4228-8377-3dba07cccc36.png",
-  ],
-};
+// Use the latest uploaded horizontal banner image for banner locations
+const HORIZONTAL_BANNER = "/lovable-uploads/e3f44304-f45d-4e28-993f-6909bfd52efe.png";
+
+// Keep existing sidebar image
+const SIDEBAR_BANNER = "/lovable-uploads/595a2250-2aed-4929-845f-0b1e66ebe4b0.png";
+
+// Use the horizontal banner for article-inline ads as well
+const ARTICLE_INLINE_BANNERS = [
+  HORIZONTAL_BANNER,
+];
+
+// Use horizontal banner for giant spaces too
+const GIANT_BANNERS = [
+  HORIZONTAL_BANNER,
+];
 
 const BETPANDA_LINK = "https://betpanda.io/";
 
 const getBetpandaBannerAd = (location: string): BannerAd => {
+  console.log(`Getting Betpanda banner ad for location: ${location}`);
+  
   let image = "";
+  
   if (location === "sidebar") {
-    image = BETPANDA_BANNERS.sidebar[0];
+    image = SIDEBAR_BANNER;
+    console.log(`Using sidebar banner: ${image}`);
   } else if (location === "article-inline") {
-    const inlineBanners = BETPANDA_BANNERS["article-inline"];
-    image = inlineBanners[Math.floor(Math.random() * inlineBanners.length)];
+    image = ARTICLE_INLINE_BANNERS[0];
+    console.log(`Using article-inline banner: ${image}`);
   } else if (location === "banner") {
-    image = BETPANDA_BANNERS.banner[0];
+    image = HORIZONTAL_BANNER;
+    console.log(`Using horizontal banner: ${image}`);
   } else if (location === "giant") {
-    const giantBanners = BETPANDA_BANNERS.giant;
-    image = giantBanners[Math.floor(Math.random() * giantBanners.length)];
+    image = GIANT_BANNERS[0];
+    console.log(`Using giant banner: ${image}`);
   } else {
-    const all = [
-      ...BETPANDA_BANNERS.banner,
-      ...BETPANDA_BANNERS.sidebar,
-      ...BETPANDA_BANNERS["article-inline"],
-      ...BETPANDA_BANNERS.giant,
-    ];
-    image = all[Math.floor(Math.random() * all.length)];
+    // For any other location, default to the horizontal banner
+    image = HORIZONTAL_BANNER;
+    console.log(`Using default banner for ${location}: ${image}`);
   }
 
   // Always set an active state to true to ensure visibility

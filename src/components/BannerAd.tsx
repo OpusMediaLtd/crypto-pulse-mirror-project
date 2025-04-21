@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Package } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import bannerAdService from '@/services/bannerAdService';
+import { toast } from 'sonner';
 
 // Show the banner at its intended dimensions: 444x136
 const BANNER_WIDTH = 444;
@@ -11,6 +12,7 @@ const BANNER_HEIGHT = 136;
 
 const BannerAd = () => {
   const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const { data: bannerAd, isLoading, error } = useQuery({
     queryKey: ['banner-ad', 'banner'],
@@ -20,6 +22,7 @@ const BannerAd = () => {
 
   useEffect(() => {
     setImgError(false);
+    setImgLoaded(false);
     console.log("BannerAd component loaded with data:", bannerAd);
   }, [bannerAd]);
 
@@ -57,19 +60,29 @@ const BannerAd = () => {
   if (bannerAd.image && !imgError) {
     return (
       <div
-        className="w-full mx-auto flex items-center justify-center bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800 dark:to-slate-900 rounded-lg cursor-pointer"
+        className="w-full mx-auto flex items-center justify-center bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800 dark:to-slate-900 rounded-lg cursor-pointer relative overflow-hidden"
         onClick={handleAdClick}
-        style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 100, overflow: 'hidden' }}
+        style={{ maxWidth: BANNER_WIDTH, height: BANNER_HEIGHT, minHeight: 100 }}
       >
+        {!imgLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-muted-foreground">Loading banner...</p>
+          </div>
+        )}
         <div className="relative w-full h-full flex items-center justify-center">
           <img
             src={bannerAd.image}
             alt={bannerAd.title}
-            className="object-contain w-full h-full"
-            style={{ width: '100%', height: '100%' }}
+            className={`object-contain w-full h-full ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            style={{ width: '100%', height: '100%', transition: 'opacity 0.3s ease' }}
+            onLoad={() => {
+              console.log("Banner image loaded successfully:", bannerAd.image);
+              setImgLoaded(true);
+            }}
             onError={() => {
               console.error("Error loading banner image:", bannerAd.image);
               setImgError(true);
+              toast.error("Failed to load banner image");
             }}
           />
           <div className="absolute top-3 left-3 flex items-center space-x-2 z-10">

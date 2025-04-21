@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Package } from 'lucide-react';
 import bannerAdService from '@/services/bannerAdService';
 import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 interface AdSpaceProps {
   variant: 'banner' | 'sidebar' | 'article-inline';
@@ -12,6 +13,7 @@ interface AdSpaceProps {
 
 const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => {
   const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const { data: bannerAd, isLoading } = useQuery({
     queryKey: ['banner-ad', variant],
@@ -21,6 +23,7 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
 
   useEffect(() => {
     setImgError(false);
+    setImgLoaded(false);
     console.log(`AdSpace (${variant}) loaded with data:`, bannerAd);
   }, [bannerAd, variant]);
 
@@ -77,17 +80,27 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
         onClick={handleAdClick}
         style={{ width: 300, height: 600 }}
       >
+        {!imgLoaded && !imgError && (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <p className="text-muted-foreground">Loading ad...</p>
+          </div>
+        )}
         {bannerAd.image && !imgError ? (
           <>
             <img
               src={bannerAd.image}
               alt={bannerAd.title}
-              className="w-full h-full object-contain"
+              className={`w-full h-full object-contain ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+              style={{ width: "100%", height: "100%", transition: 'opacity 0.3s ease' }}
+              onLoad={() => {
+                console.log(`${variant} image loaded successfully:`, bannerAd.image);
+                setImgLoaded(true);
+              }}
               onError={() => {
                 console.error(`Error loading ${variant} ad image:`, bannerAd.image);
                 setImgError(true);
+                toast.error(`Failed to load ${variant} ad image`);
               }}
-              style={{ width: "100%", height: "100%" }}
             />
             <div className="absolute top-3 left-3 flex items-center space-x-2 z-10">
               <Badge variant="outline" className="bg-black/50 text-white border-white/20">
@@ -103,6 +116,9 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
                 Sponsored
               </Badge>
             </div>
+            <span className="text-sm text-muted-foreground dark:text-gray-400">
+              {bannerAd.content || bannerAd.title}
+            </span>
           </div>
         )}
       </div>
@@ -112,20 +128,30 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
   if (variant === "banner") {
     return (
       <div
-        className={`${getAdStyles()} bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 border dark:border-slate-800 rounded-lg mb-8 cursor-pointer overflow-hidden`}
+        className={`${getAdStyles()} bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 border dark:border-slate-800 rounded-lg mb-8 cursor-pointer overflow-hidden relative`}
         onClick={handleAdClick}
         style={{ maxWidth: 444, height: 136, minHeight: 100 }}
       >
+        {!imgLoaded && !imgError && (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <p className="text-muted-foreground">Loading ad...</p>
+          </div>
+        )}
         {bannerAd.image && !imgError ? (
           <div className="relative w-full h-full flex items-center justify-center">
             <img
               src={bannerAd.image}
               alt={bannerAd.title}
-              className="object-contain w-full h-full"
-              style={{ width: '100%', height: '100%' }}
+              className={`object-contain w-full h-full ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+              style={{ width: '100%', height: '100%', transition: 'opacity 0.3s ease' }}
+              onLoad={() => {
+                console.log(`${variant} image loaded successfully:`, bannerAd.image);
+                setImgLoaded(true);
+              }}
               onError={() => {
                 console.error(`Error loading ${variant} ad image:`, bannerAd.image);
                 setImgError(true);
+                toast.error(`Failed to load ${variant} ad image`);
               }}
             />
             <div className="absolute top-3 left-3 flex items-center space-x-2 z-10">
@@ -142,6 +168,9 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
                 Sponsored
               </Badge>
             </div>
+            <span className="text-sm text-muted-foreground dark:text-gray-400">
+              {bannerAd.content || bannerAd.title}
+            </span>
           </div>
         )}
       </div>
@@ -150,18 +179,29 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
 
   return (
     <div
-      className={`${getAdStyles()} bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border dark:border-slate-800 rounded-lg mb-8 cursor-pointer`}
+      className={`${getAdStyles()} bg-gradient-to-r from-primary/5 to-primary/10 dark:from-slate-800/50 dark:to-slate-800/80 backdrop-blur-sm border dark:border-slate-800 rounded-lg mb-8 cursor-pointer relative`}
       onClick={handleAdClick}
     >
+      {!imgLoaded && !imgError && (
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <p className="text-muted-foreground">Loading ad...</p>
+        </div>
+      )}
       {bannerAd.image && !imgError ? (
         <div className="h-full relative overflow-hidden rounded-lg">
           <img
             src={bannerAd.image}
             alt={bannerAd.title}
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            style={{ transition: 'opacity 0.3s ease' }}
+            onLoad={() => {
+              console.log(`${variant} image loaded successfully:`, bannerAd.image);
+              setImgLoaded(true);
+            }}
             onError={() => {
               console.error(`Error loading ${variant} ad image:`, bannerAd.image);
               setImgError(true);
+              toast.error(`Failed to load ${variant} ad image`);
             }}
           />
           <div className="absolute top-3 left-3 flex items-center space-x-2">
