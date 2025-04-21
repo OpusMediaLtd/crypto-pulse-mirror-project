@@ -1,3 +1,4 @@
+
 import { WORDPRESS_BANNER_ADS_ENDPOINT } from './wordpress/config';
 import { fetchWithCache } from './wordpress/utils';
 
@@ -11,10 +12,10 @@ export interface BannerAd {
   active: boolean;
 }
 
+// Updated: Sidebar will only use the newly provided 300x600 image
 const BETPANDA_BANNERS = {
   sidebar: [
-    "/lovable-uploads/aaef47ed-b85e-47e2-ad5e-31eecf58af0d.png", // Existing 300x600 Betpanda
-    "/lovable-uploads/4a72cbaa-07d6-4691-b5b3-b5aefed216cc.png", // User-uploaded 300x600 alternative
+    "/lovable-uploads/595a2250-2aed-4929-845f-0b1e66ebe4b0.png", // New exclusive sidebar 300x600
   ],
   "article-inline": [
     "/lovable-uploads/ec312f2d-f78c-43d9-85dd-b7bcf581f854.png", // 300x250, square, or close inline
@@ -37,8 +38,7 @@ const BETPANDA_LINK = "https://betpanda.io/";
 const getBetpandaBannerAd = (location: string): BannerAd => {
   let image = "";
   if (location === "sidebar") {
-    const sidebarBanners = BETPANDA_BANNERS.sidebar;
-    image = sidebarBanners[Math.floor(Math.random() * sidebarBanners.length)];
+    image = BETPANDA_BANNERS.sidebar[0]; // Always use the new exclusive sidebar banner
   } else if (location === "article-inline") {
     const inlineBanners = BETPANDA_BANNERS["article-inline"];
     image = inlineBanners[Math.floor(Math.random() * inlineBanners.length)];
