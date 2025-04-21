@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Package } from 'lucide-react';
@@ -140,7 +141,7 @@ const AdSpace = ({ variant, message = "Advertisement Space" }: AdSpaceProps) => 
               <Package className="h-5 w-5 text-primary dark:text-gray-400" />
               <Badge variant="outline" className="bg-background/50 dark:bg-slate-900/50">
                 Sponsored
-              Badge>
+              </Badge>
             </div>
             <span className="text-sm text-muted-foreground dark:text-gray-400">
               {bannerAd.content || bannerAd.title}
